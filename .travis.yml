@@ -1,0 +1,6 @@
+addons:
+  sonarcloud:
+    organization: "forgeqc"
+script:
+  # other script steps might be done before running the actual analysis
+  - sonar-scanner

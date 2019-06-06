@@ -12,11 +12,10 @@ before_script:
 jobs:
   include:
     - stage: "Tests"
-      name: "PHP Unit testing"
-      script: phpunit
-    - stage: "Sonar"
-      name: "Analyzing with Sonarqube"
-      script: sonar-scanner
+      name: "PHP Unit testing and sonar analysis"
+      script:
+        - phpunit
+        - sonar-scanner
 
 # Load sonarcloud addon
 addons:

@@ -1,7 +1,5 @@
 language: php
 php:
-  - '7.0'
-  - '7.1'
   - '7.2'
   - '7.3'
 
@@ -11,7 +9,7 @@ before_script:
   - composer install --prefer-source --no-interaction --dev
 
 # Commands you want to run that will verify your build.
-script: phpunit tests
+script: phpunit
 
 addons:
   sonarcloud:

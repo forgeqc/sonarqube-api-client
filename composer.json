@@ -1,0 +1,29 @@
+{
+  "name": "forgeqc/sonarqube-api-client",
+  "version": "0.1.0",
+  "type": "library",
+  "description": "A simple PHP client for Sonarqube API",
+  "keywords": ["sonarqube","api","client"],
+  "license": "MIT",
+  "require": {
+      "guzzlehttp/guzzle": "^6.3",
+      "kevinrob/guzzle-cache-middleware": "^3.2",
+      "doctrine/cache": "^1.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Forge\\SonarqubeApiClient\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Forge\\SonarqubeApiClient\\": "tests/"
+    }
+  },
+  "archive": {
+    "exclude": ["vendor/", "tests/", ".gitignore"]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.1"
+  }
+}

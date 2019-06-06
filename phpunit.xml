@@ -18,7 +18,7 @@
 
     <logging>
       <log type="coverage-clover" target="./log/coverage.xml"/>
-      <log type="junit" target="./log/unit.xml" logIncompleteSkipped="false"/>
+      <log type="junit" target="./log/unit.xml"/>
     </logging>
 
     <filter>

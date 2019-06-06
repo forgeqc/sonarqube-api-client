@@ -17,7 +17,8 @@
     </testsuites>
 
     <logging>
-      <log type="coverage-html" target="./log/codeCoverage" lowUpperBound="50" highLowerBound="80" showUncoveredFiles="false" />
+      <log type="coverage-clover" target="./log/coverage.xml"/>
+      <log type="junit" target="./log/unit.xml" logIncompleteSkipped="false"/>
     </logging>
 
     <filter>

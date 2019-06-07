@@ -4,6 +4,7 @@ namespace Forge\SonarqubeApiClient;
 
 use Forge\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
+use Exception;
 
 class SonarqubeProject {
 
@@ -19,11 +20,22 @@ class SonarqubeProject {
       $this->key = $projectKey;
   }
 
-  //Retrieve all Sonarqube projects (projects visibility related to API token access rights)
-  public function getProjects() {
-    $response = $this->httpclient->request('GET', 'components/search?qualifiers=TRK');
-    $data = json_decode($response->getBody(), true);
-    return $data;
+  //Test if sonarqube project exists
+  public function exists() {
+    try {
+      //If data is returned, then project exists
+      $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
+      return true;
+    } catch (BadResponseException $e) {
+      //Else sonarqube returns a 404 error code
+      $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
+      $errormsg = json_decode($e->getResponse()->getBody()->getContents(), true);
+      if ($errorcode == 404) {
+        return false;
+      } else {;
+        throw new Exception(\GuzzleHttp\Psr7\str($e->getResponse()));
+      }
+    }
   }
 
   //Create a new sonarqube project
@@ -36,26 +48,14 @@ class SonarqubeProject {
       $params['organization'] = $organization;
     }
     $response = $this->httpclient->request('POST', 'projects/create', ['form_params' => $params]);
-    $data = json_decode($response->getBody(), true);
+    return json_decode($response->getBody(), true);
   }
 
-  //Test if sonarqube project exists
-  public function exists() {
-    try {
-      //If data is returned, then project exists
-      $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
-      $data = json_decode($response->getBody(), true);
-      return true;
-    } catch (BadResponseException $e) {
-      //Else sonarqube returns a 404 error code
-      $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
-      $errormsg = json_decode($e->getResponse()->getBody()->getContents(), true);
-      if ($errorcode == 404) {
-        return false;
-      } else {
-        throw new Exception($errormsg);
-      }
-    }
+  //Get sonarqube project metadata
+  public function getProperties() {
+    $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
+    $sonarqubeComponentProperties = json_decode($response->getBody(), true);
+    return $sonarqubeComponentProperties['component'];
   }
 
   //Retrieve Sonarqube project measures
@@ -64,8 +64,8 @@ class SonarqubeProject {
     $projects_measures['sonarqube_key'] = $this->key;
 
     //Extract the project quality measures from sonarqube
-    $sonarqubeProjectsMetricsRest = $this->httpclient->request('GET', 'measures/component?metricKeys=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key);
-    $sonarqubeProjectsMetrics = json_decode($sonarqubeProjectsMetricsRest->getBody(), true);
+    $response = $this->httpclient->request('GET', 'measures/component?metricKeys=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key);
+    $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
 
     //Parse measures and inject in result array
     foreach ($sonarqubeProjectsMetrics['component']['measures'] as $measure) {

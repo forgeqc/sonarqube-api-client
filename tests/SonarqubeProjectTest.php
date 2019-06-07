@@ -5,11 +5,45 @@ namespace Tests\Forge\SonarqubeApiClient;
 use PHPUnit\Framework\TestCase;
 use Forge\SonarqubeApiClient\HttpClient;
 use Forge\SonarqubeApiClient\SonarqubeProject;
+use Exception;
 
 class SonarqubeProjectTest extends TestCase
 {
   //Test exists() function on sonarqube sample project
-  public function testSonarqubeProjectExists()
+  public function testExists()
+  {
+      //Connect to sonarqube API
+      $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
+
+      //Test if the exists() fucntion returns true when project exists in Sonarqube
+      $projectKey1 = 'org.sonarsource.scanner.cli:sonar-scanner-cli';
+      $project1 = new SonarqubeProject($api, $projectKey1);
+      $this->assertSame(true, $project1->exists());
+
+      //Test if the exists() fucntion returns false when project does not exist in Sonarqube
+      $projectKey2 = 'not-existing-sample-project';
+      $project2 = new SonarqubeProject($api, $projectKey2);
+      $this->assertSame(false, $project2->exists());
+  }
+
+  //Test exists() function error handling if wrong token is used
+  public function testExistsError()
+  {
+      //Tel PHPUNIT that the correct behavior of the tested function is to throw an exception
+      $this->expectException(Exception::class);
+
+      //Define sonarcloud.io project key
+      $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';
+
+      //Connect to sonarqube API
+      $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/', 'wrongtoken');
+      $project = new SonarqubeProject($api, $projectKey);
+
+      $result = $project->exists();
+  }
+
+  //Test sonarqube project metadata extraction
+  public function testGetProperties()
   {
       //Define sonarcloud.io project key
       $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';
@@ -18,24 +52,16 @@ class SonarqubeProjectTest extends TestCase
       $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
       $project = new SonarqubeProject($api, $projectKey);
 
-      $this->assertSame(true, $project->exists());
-  }
+      $properties = $project->getProperties();
 
-  //Test if exists() function retuns false on a not existing sonarqube project
-  public function testSonarqubeProjectNotExists()
-  {
-      //Define sonarcloud.io project key
-      $projectKey = 'not-existing-sample-project';
-
-      //Connect to sonarqube API
-      $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
-      $project = new SonarqubeProject($api, $projectKey);
-
-      $this->assertSame(false, $project->exists());
+      $this->assertArrayHasKey('key', $properties);
+      $this->assertArrayHasKey('name', $properties);
+      $this->assertArrayHasKey('tags', $properties);
+      $this->assertArrayHasKey('visibility', $properties);
   }
 
   //Test sonarqube project measures extraction
-  public function testSonarqubeProjectMeasures()
+  public function testGetMeasures()
   {
       //Define sonarcloud.io project key
       $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';

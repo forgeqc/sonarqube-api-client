@@ -29,10 +29,9 @@ class SonarqubeProject {
     } catch (BadResponseException $e) {
       //Else sonarqube returns a 404 error code
       $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
-      $errormsg = json_decode($e->getResponse()->getBody()->getContents(), true);
       if ($errorcode == 404) {
         return false;
-      } else {;
+      } else {
         throw new Exception(\GuzzleHttp\Psr7\str($e->getResponse()));
       }
     }

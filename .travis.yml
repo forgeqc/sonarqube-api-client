@@ -11,7 +11,7 @@ before_script:
 # Commands you want to run that will verify your build.
 jobs:
   include:
-    - stage: "Tests"
+    - stage: "Sonarcloud"
       name: "PHP Unit testing and sonar analysis"
       script:
         - phpunit

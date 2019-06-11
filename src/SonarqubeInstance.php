@@ -27,9 +27,10 @@ class SonarqubeInstance {
       $projectsTemp = json_decode($response->getBody(), true);
       $projects = array_merge($projects, $projectsTemp['components']);
 
-      $projectscount = $projectsTemp['paging']['total'];
-      $pagesize = $projectsTemp['paging']['pageSize'];
-      $pageindex = $projectsTemp['paging']['pageIndex'];
+      $paging = $projectsTemp['paging'];
+      $projectscount = $paging['total'];
+      $pagesize = $paging['pageSize'];
+      $pageindex = $paging['pageIndex'];
     } while ($projectscount > $pagesize * $pageindex);
 
     return $projects;

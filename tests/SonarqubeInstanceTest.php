@@ -12,10 +12,13 @@ class SonarqubeInstanceTest extends TestCase
   public function testGetProjects()
   {
     //Connect to sonarqube API
-    $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
+    $api = new HttpClient('https://sonarcloud.io/api/');
     $instance = new SonarqubeInstance($api);
 
     $projects = $instance->getProjects();
+
+    //test if paging if correctly handled (result count > 100 when testingith sonarcloud.io)
+    $this->assertGreaterThan(100,count($projects));
 
     //test if at least a project is retuned with correct property keys
     $this->assertArrayHasKey('key', $projects[0]);

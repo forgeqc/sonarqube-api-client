@@ -5,7 +5,7 @@ namespace Tests\Forge\SonarqubeApiClient;
 use PHPUnit\Framework\TestCase;
 use Forge\SonarqubeApiClient\HttpClient;
 use Forge\SonarqubeApiClient\SonarqubeProject;
-use Exception;
+use GuzzleHttp\Exception\RequestException;
 
 class SonarqubeProjectTest extends TestCase
 {
@@ -30,7 +30,7 @@ class SonarqubeProjectTest extends TestCase
   public function testExistsError()
   {
       //Tel PHPUNIT that the correct behavior of the tested function is to throw an exception
-      $this->expectException(Exception::class);
+      $this->expectException(RequestException::class);
 
       //Define sonarcloud.io project key
       $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';

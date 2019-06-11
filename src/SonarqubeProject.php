@@ -14,6 +14,8 @@ class SonarqubeProject {
   protected $visibility;
   protected $owner;
 
+  private const COMPONENT = 'component';
+
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
   public function __construct($httpclient, $projectKey) {
       $this->httpclient = $httpclient;
@@ -26,11 +28,9 @@ class SonarqubeProject {
       //If data is returned, then project exists
       $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
       $data = json_decode($response->getBody(), true);
-      if($data['component']['key'] == $this->key) {
-        return true;
-      } else {
-        return false;
-      }
+
+      //the expression will evaluate as true if both values are equal
+      return $data[self::COMPONENT]['key'] == $this->key;
     } catch (BadResponseException $e) {
       //Else sonarqube returns a 404 error code
       $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
@@ -59,7 +59,7 @@ class SonarqubeProject {
   public function getProperties() {
     $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
     $sonarqubeComponentProperties = json_decode($response->getBody(), true);
-    return $sonarqubeComponentProperties['component'];
+    return $sonarqubeComponentProperties[self::COMPONENT];
   }
 
   //Retrieve Sonarqube project measures
@@ -72,7 +72,7 @@ class SonarqubeProject {
     $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
 
     //Parse measures and inject in result array
-    foreach ($sonarqubeProjectsMetrics['component']['measures'] as $measure) {
+    foreach ($sonarqubeProjectsMetrics[self::COMPONENT]['measures'] as $measure) {
       //Generic extraction of sonarqube metrics and value for injection in the result array
       $metric = $measure['metric'];
       $value = $measure['value'];

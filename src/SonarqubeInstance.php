@@ -20,9 +20,17 @@ class SonarqubeInstance {
     $projects = [];
 
     //Handle multiple projects pages
-    $response = $this->httpclient->request('GET', 'components/search?qualifiers=TRK');
-    $projectsTemp = json_decode($response->getBody(), true);
-    $projects = $projects + $projectsTemp['components'];
+    $page = 0;
+    do {
+      $page++;
+      $response = $this->httpclient->request('GET', 'components/search?qualifiers=TRK&p=' . $page);
+      $projectsTemp = json_decode($response->getBody(), true);
+      $projects = array_merge($projects, $projectsTemp['components']);
+
+      $projectscount = $projectsTemp['paging']['total'];
+      $pagesize = $projectsTemp['paging']['pageSize'];
+      $pageindex = $projectsTemp['paging']['pageIndex'];
+    } while ($projectscount > $pagesize * $pageindex);
 
     return $projects;
 

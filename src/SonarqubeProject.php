@@ -4,7 +4,7 @@ namespace Forge\SonarqubeApiClient;
 
 use Forge\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
-use Exception;
+use GuzzleHttp\Exception\RequestException;
 
 class SonarqubeProject {
 
@@ -25,14 +25,19 @@ class SonarqubeProject {
     try {
       //If data is returned, then project exists
       $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
-      return true;
+      $data = json_decode($response->getBody(), true);
+      if($data['component']['key'] == $this->key) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (BadResponseException $e) {
       //Else sonarqube returns a 404 error code
       $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
       if ($errorcode == 404) {
         return false;
       } else {
-        throw new Exception(\GuzzleHttp\Psr7\str($e->getResponse()));
+        throw new RequestException(\GuzzleHttp\Psr7\str($e->getResponse()), $e->getRequest());
       }
     }
   }

@@ -17,6 +17,6 @@
   var_dump($project->getProperties());
 
   $instance = new SonarqubeInstance($api);
-  var_dump($instance->getProjects());
+  var_dump(count($instance->getProjects()));
 
  ?>

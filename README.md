@@ -1,4 +1,7 @@
 # sonarqube-api-client
+[![Build Status](https://travis-ci.org/forgeqc/sonarqube-api-client.svg?branch=master)](https://travis-ci.org/forgeqc/sonarqube-api-client)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=forgeqc_sonarqube-api-client&metric=alert_status)](https://sonarcloud.io/dashboard?id=forgeqc_sonarqube-api-client)
+
 PHP client library for Sonarqube API access from a PHP project.
 
 ## Installation

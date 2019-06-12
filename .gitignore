@@ -1,3 +1,4 @@
 cache/
 log/
+vendor/
 .phpunit.result.cache

@@ -1,8 +1,8 @@
 <?php
 
-namespace Forge\SonarqubeApiClient;
+namespace ForgeQC\SonarqubeApiClient;
 
-use Forge\SonarqubeApiClient\HttpClient;
+use ForgeQC\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use Exception;
 

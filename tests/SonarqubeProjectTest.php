@@ -1,11 +1,12 @@
 <?php
 
-namespace Tests\Forge\SonarqubeApiClient;
+namespace Tests\ForgeQC\SonarqubeApiClient;
 
 use PHPUnit\Framework\TestCase;
-use Forge\SonarqubeApiClient\HttpClient;
-use Forge\SonarqubeApiClient\SonarqubeProject;
+use ForgeQC\SonarqubeApiClient\HttpClient;
+use ForgeQC\SonarqubeApiClient\SonarqubeProject;
 use GuzzleHttp\Exception\RequestException;
+use \UnexpectedValueException;
 
 class SonarqubeProjectTest extends TestCase
 {
@@ -40,6 +41,7 @@ class SonarqubeProjectTest extends TestCase
       $project = new SonarqubeProject($api, $projectKey);
 
       $result = $project->exists();
+      //Should throw a RequestException
   }
 
   //Test sonarqube project metadata extraction
@@ -72,7 +74,6 @@ class SonarqubeProjectTest extends TestCase
 
       $measures = $project->getMeasures();
 
-      $this->assertArrayHasKey('sonarqube_key', $measures);
       $this->assertArrayHasKey('sqale_rating', $measures);
       $this->assertArrayHasKey('bugs', $measures);
       $this->assertArrayHasKey('reliability_remediation_effort', $measures);
@@ -82,5 +83,44 @@ class SonarqubeProjectTest extends TestCase
       $this->assertArrayHasKey('security_remediation_effort', $measures);
       $this->assertArrayHasKey('coverage', $measures);
   }
+
+  //Test sonarqube project measures history extraction with valid date parameter
+  public function testGetMeasuresHistory()
+  {
+      //Define sonarcloud.io project key
+      $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';
+
+      //Connect to sonarqube API
+      $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
+      $project = new SonarqubeProject($api, $projectKey);
+
+      $measures = $project->getMeasuresHistory('2019-01-01');
+
+      $this->assertArrayHasKey('sqale_rating', $measures);
+      $this->assertArrayHasKey('bugs', $measures);
+      $this->assertArrayHasKey('reliability_remediation_effort', $measures);
+      $this->assertArrayHasKey('security_rating', $measures);
+      $this->assertArrayHasKey('vulnerabilities', $measures);
+      $this->assertArrayHasKey('sqale_index', $measures);
+      $this->assertArrayHasKey('security_remediation_effort', $measures);
+      $this->assertArrayHasKey('coverage', $measures);
+  }
+
+    //Test sonarqube project measures history extraction with wrong date parameter
+  public function testGetMeasuresHistoryWrongDate()
+  {
+      $this->expectException(UnexpectedValueException::class);
+
+      //Define sonarcloud.io project key
+      $projectKey = 'org.sonarsource.scanner.cli:sonar-scanner-cli';
+
+      //Connect to sonarqube API
+      $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
+      $project = new SonarqubeProject($api, $projectKey);
+
+      $measures = $project->getMeasuresHistory('2019-18-43');
+      //Should throw a UnexpectedValueException
+  }
+
 
 }

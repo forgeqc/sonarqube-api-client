@@ -12,12 +12,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Forge\\SonarqubeApiClient\\": "src/"
+      "ForgeQC\\SonarqubeApiClient\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\Forge\\SonarqubeApiClient\\": "tests/"
+      "Tests\\ForgeQC\\SonarqubeApiClient\\": "tests/"
     }
   },
   "archive": {

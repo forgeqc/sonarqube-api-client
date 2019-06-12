@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Forge\SonarqubeApiClient;
+namespace Tests\ForgeQC\SonarqubeApiClient;
 
 use PHPUnit\Framework\TestCase;
-use Forge\SonarqubeApiClient\HttpClient;
-use Forge\SonarqubeApiClient\SonarqubeInstance;
+use ForgeQC\SonarqubeApiClient\HttpClient;
+use ForgeQC\SonarqubeApiClient\SonarqubeInstance;
 
 class SonarqubeInstanceTest extends TestCase
 {

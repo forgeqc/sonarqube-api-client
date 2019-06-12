@@ -1,6 +1,6 @@
 <?php
 
-namespace Forge\SonarqubeApiClient;
+namespace ForgeQC\SonarqubeApiClient;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;

@@ -83,6 +83,8 @@ class Count extends Constraint
 
             return $count;
         }
+
+        return null;
     }
 
     /**

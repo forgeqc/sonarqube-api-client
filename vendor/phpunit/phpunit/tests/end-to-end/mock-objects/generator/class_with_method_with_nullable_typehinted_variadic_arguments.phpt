@@ -21,14 +21,16 @@ $mock = $generator->generate(
     true
 );
 
-print $mock['code'];
-?>
---EXPECT--
+print $mock->getClassCode();
+--EXPECTF--
+declare(strict_types=1);
+
 class MockFoo extends ClassWithMethodWithNullableTypehintedVariadicArguments implements PHPUnit\Framework\MockObject\MockObject
 {
+    use \PHPUnit\Framework\MockObject\ConfigurableMethods;
+
     private $__phpunit_invocationMocker;
     private $__phpunit_originalObject;
-    private $__phpunit_configurable = ['methodwithnullabletypehintedvariadicarguments'];
     private $__phpunit_returnValueGeneration = true;
 
     public function __clone()
@@ -50,7 +52,7 @@ class MockFoo extends ClassWithMethodWithNullableTypehintedVariadicArguments imp
         }
 
         $__phpunit_result = $this->__phpunit_getInvocationMocker()->invoke(
-            new \PHPUnit\Framework\MockObject\Invocation\ObjectInvocation(
+            new \PHPUnit\Framework\MockObject\Invocation(
                 'ClassWithMethodWithNullableTypehintedVariadicArguments', 'methodWithNullableTypehintedVariadicArguments', $__phpunit_arguments, '', $this, true
             )
         );
@@ -84,7 +86,7 @@ class MockFoo extends ClassWithMethodWithNullableTypehintedVariadicArguments imp
     public function __phpunit_getInvocationMocker(): \PHPUnit\Framework\MockObject\InvocationMocker
     {
         if ($this->__phpunit_invocationMocker === null) {
-            $this->__phpunit_invocationMocker = new \PHPUnit\Framework\MockObject\InvocationMocker($this->__phpunit_configurable, $this->__phpunit_returnValueGeneration);
+            $this->__phpunit_invocationMocker = new \PHPUnit\Framework\MockObject\InvocationMocker(static::$__phpunit_configurableMethods, $this->__phpunit_returnValueGeneration);
         }
 
         return $this->__phpunit_invocationMocker;

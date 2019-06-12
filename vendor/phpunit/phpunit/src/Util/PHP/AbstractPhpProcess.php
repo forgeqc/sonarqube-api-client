@@ -177,6 +177,23 @@ abstract class AbstractPhpProcess
     public function getCommand(array $settings, string $file = null): string
     {
         $command = $this->runtime->getBinary();
+
+        if ($this->runtime->hasPCOV()) {
+            $settings = \array_merge(
+                $settings,
+                $this->runtime->getCurrentSettings(
+                    \array_keys(\ini_get_all('pcov'))
+                )
+            );
+        } elseif ($this->runtime->hasXdebug()) {
+            $settings = \array_merge(
+                $settings,
+                $this->runtime->getCurrentSettings(
+                    \array_keys(\ini_get_all('xdebug'))
+                )
+            );
+        }
+
         $command .= $this->settingsToParameters($settings);
 
         if (\PHP_SAPI === 'phpdbg') {

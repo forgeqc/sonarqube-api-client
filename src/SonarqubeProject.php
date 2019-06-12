@@ -1,10 +1,11 @@
 <?php
 
-namespace Forge\SonarqubeApiClient;
+namespace ForgeQC\SonarqubeApiClient;
 
-use Forge\SonarqubeApiClient\HttpClient;
+use ForgeQC\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use \UnexpectedValueException;
 
 class SonarqubeProject {
 
@@ -65,7 +66,6 @@ class SonarqubeProject {
   //Retrieve Sonarqube project measures
   public function getMeasures() {
     $projects_measures = array();
-    $projects_measures['sonarqube_key'] = $this->key;
 
     //Extract the project quality measures from sonarqube
     $response = $this->httpclient->request('GET', 'measures/component?metricKeys=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key);
@@ -79,6 +79,30 @@ class SonarqubeProject {
       $projects_measures[$metric] = $value;
     }
     return $projects_measures;
+  }
+
+  //Retrieve Sonarqube project measures
+  public function getMeasuresHistory($date) {
+    //Check if date is set and valid or return HTTP/400 Bad Request error
+    if(preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/",$date)) {
+      $projects_measures = array();
+
+      //Extract the project quality measures from sonarqube
+      $response = $this->httpclient->request('GET', 'measures/search_history?metrics=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key.'&from='.$date);
+      $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
+
+      //Parse measures and inject in result array
+      foreach ($sonarqubeProjectsMetrics['measures'] as $measure) {
+        //Generic extraction of sonarqube metrics and value for injection in the result array
+        $metric = $measure['metric'];
+        $valuetable = $measure['history'];
+        $projects_measures[$metric] = $valuetable;
+      }
+      return $projects_measures;
+    }
+    else {
+      throw new UnexpectedValueException('The \'date\' parameter is missing or is not a valid YYYY-MM-DD date format.');
+    }
   }
 
 }

@@ -19,8 +19,7 @@ $mockMethod = \PHPUnit\Framework\MockObject\MockMethod::fromReflection(
 $code = $mockMethod->generateCode();
 
 print $code;
-?>
---EXPECT--
+--EXPECTF--
 
     public function bar(): void
     {
@@ -36,8 +35,8 @@ print $code;
         }
 
         $this->__phpunit_getInvocationMocker()->invoke(
-            new \PHPUnit\Framework\MockObject\Invocation\ObjectInvocation(
-                'Foo', 'bar', $__phpunit_arguments, 'void', $this, false, true
+            new \PHPUnit\Framework\MockObject\Invocation(
+                'Foo', 'bar', $__phpunit_arguments, ': void', $this, false, true
             )
         );
 

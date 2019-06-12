@@ -20,7 +20,6 @@ use phpDocumentor\Reflection\Project;
 use phpDocumentor\Reflection\Type;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
-use ReflectionClass;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeUnitReverseLookup\Wizard;
 use SebastianBergmann\Comparator\Comparator;
@@ -34,6 +33,7 @@ use SebastianBergmann\ObjectEnumerator\Enumerator;
 use SebastianBergmann\RecursionContext\Context;
 use SebastianBergmann\ResourceOperations\ResourceOperations;
 use SebastianBergmann\Timer\Timer;
+use SebastianBergmann\Type\TypeName;
 use SebastianBergmann\Version;
 use Text_Template;
 use TheSeer\Tokenizer\Tokenizer;
@@ -45,7 +45,7 @@ use Webmozart\Assert\Assert;
 final class Blacklist
 {
     /**
-     * @var array
+     * @var array<string,int>
      */
     public static $blacklistedClassNames = [
         // composer
@@ -123,6 +123,9 @@ final class Blacklist
         // sebastian/resource-operations
         ResourceOperations::class => 1,
 
+        // sebastian/type
+        TypeName::class => 1,
+
         // sebastian/version
         Version::class => 1,
 
@@ -139,7 +142,7 @@ final class Blacklist
     private static $directories;
 
     /**
-     * @throws \ReflectionException
+     * @throws Exception
      *
      * @return string[]
      */
@@ -151,7 +154,7 @@ final class Blacklist
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws Exception
      */
     public function isBlacklisted(string $file): bool
     {
@@ -171,7 +174,7 @@ final class Blacklist
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws Exception
      */
     private function initialize(): void
     {
@@ -183,7 +186,15 @@ final class Blacklist
                     continue;
                 }
 
-                $directory = (new ReflectionClass($className))->getFileName();
+                try {
+                    $directory = (new \ReflectionClass($className))->getFileName();
+                } catch (\ReflectionException $e) {
+                    throw new Exception(
+                        $e->getMessage(),
+                        (int) $e->getCode(),
+                        $e
+                    );
+                }
 
                 for ($i = 0; $i < $parent; $i++) {
                     $directory = \dirname($directory);

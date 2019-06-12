@@ -16,6 +16,7 @@ use PHPUnit\Framework\MockObject\Exception as MockObjectException;
 use PHPUnit\Util\Blacklist;
 use PHPUnit\Util\ErrorHandler;
 use PHPUnit\Util\Printer;
+use PHPUnit\Util\Test as TestUtil;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\CoveredCodeNotExecutedException as OriginalCoveredCodeNotExecutedException;
 use SebastianBergmann\CodeCoverage\Exception as OriginalCodeCoverageException;
@@ -68,6 +69,8 @@ final class TestResult implements Countable
     private $skipped = [];
 
     /**
+     * @deprecated Use the `TestHook` interfaces instead
+     *
      * @var TestListener[]
      */
     private $listeners = [];
@@ -194,32 +197,11 @@ final class TestResult implements Countable
      */
     private $registerMockObjectsFromTestArgumentsRecursively = false;
 
-    public static function isAnyCoverageRequired(TestCase $test): bool
-    {
-        $annotations = $test->getAnnotations();
-
-        // If there is a @coversNothing annotation on the test method then code
-        // coverage data does not need to be collected
-        if (isset($annotations['method']['coversNothing'])) {
-            return false;
-        }
-
-        // If any methods have covers, coverage must me generated
-        if (isset($annotations['method']['covers'])) {
-            return true;
-        }
-
-        // If there are no explicit covers, and the test class is
-        // marked as covers nothing, all coverage can be skipped
-        if (isset($annotations['class']['coversNothing'])) {
-            return false;
-        }
-
-        // Otherwise each test method can generate coverage
-        return true;
-    }
-
     /**
+     * @deprecated Use the `TestHook` interfaces instead
+     *
+     * @codeCoverageIgnore
+     *
      * Registers a TestListener.
      */
     public function addListener(TestListener $listener): void
@@ -228,6 +210,10 @@ final class TestResult implements Countable
     }
 
     /**
+     * @deprecated Use the `TestHook` interfaces instead
+     *
+     * @codeCoverageIgnore
+     *
      * Unregisters a TestListener.
      */
     public function removeListener(TestListener $listener): void
@@ -240,6 +226,10 @@ final class TestResult implements Countable
     }
 
     /**
+     * @deprecated Use the `TestHook` interfaces instead
+     *
+     * @codeCoverageIgnore
+     *
      * Flushes all flushable TestListeners.
      */
     public function flushListeners(): void
@@ -256,7 +246,7 @@ final class TestResult implements Countable
      */
     public function addError(Test $test, Throwable $t, float $time): void
     {
-        if ($t instanceof RiskyTest) {
+        if ($t instanceof RiskyTestError) {
             $this->risky[] = new TestFailure($test, $t);
             $notifyMethod  = 'addRiskyTest';
 
@@ -328,7 +318,7 @@ final class TestResult implements Countable
      */
     public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
-        if ($e instanceof RiskyTest || $e instanceof OutputError) {
+        if ($e instanceof RiskyTestError || $e instanceof OutputError) {
             $this->risky[] = new TestFailure($test, $e);
             $notifyMethod  = 'addRiskyTest';
 
@@ -597,7 +587,6 @@ final class TestResult implements Countable
      * @throws OriginalCoveredCodeNotExecutedException
      * @throws OriginalMissingCoversAnnotationException
      * @throws UnintentionallyCoveredCodeException
-     * @throws \ReflectionException
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
      * @throws \SebastianBergmann\CodeCoverage\RuntimeException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
@@ -611,7 +600,7 @@ final class TestResult implements Countable
                 $this->registerMockObjectsFromTestArgumentsRecursively
             );
 
-            $isAnyCoverageRequired = self::isAnyCoverageRequired($test);
+            $isAnyCoverageRequired = TestUtil::requiresCodeCoverageDataCollection($test);
         }
 
         $error      = false;
@@ -855,11 +844,28 @@ final class TestResult implements Countable
         } elseif ($this->beStrictAboutTestsThatDoNotTestAnything &&
             !$test->doesNotPerformAssertions() &&
             $test->getNumAssertions() == 0) {
-            $reflected = new \ReflectionClass($test);
-            $name      = $test->getName(false);
+            try {
+                $reflected = new \ReflectionClass($test);
+            } catch (\ReflectionException $e) {
+                throw new Exception(
+                    $e->getMessage(),
+                    (int) $e->getCode(),
+                    $e
+                );
+            }
+
+            $name = $test->getName(false);
 
             if ($name && $reflected->hasMethod($name)) {
-                $reflected = $reflected->getMethod($name);
+                try {
+                    $reflected = $reflected->getMethod($name);
+                } catch (\ReflectionException $e) {
+                    throw new Exception(
+                        $e->getMessage(),
+                        (int) $e->getCode(),
+                        $e
+                    );
+                }
             }
             $this->addFailure(
                 $test,

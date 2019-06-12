@@ -11,6 +11,9 @@ namespace PHPUnit\Framework\MockObject;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @psalm-template MockedType
+ */
 final class MockBuilder
 {
     /**
@@ -24,7 +27,7 @@ final class MockBuilder
     private $type;
 
     /**
-     * @var array
+     * @var string[]
      */
     private $methods = [];
 
@@ -84,7 +87,9 @@ final class MockBuilder
     private $generator;
 
     /**
-     * @param array|string $type
+     * @param string|string[] $type
+     *
+     * @psalm-param class-string<MockedType>|string|string[] $type
      */
     public function __construct(TestCase $testCase, $type)
     {
@@ -96,9 +101,9 @@ final class MockBuilder
     /**
      * Creates a mock object using a fluent interface.
      *
-     * @throws \ReflectionException
-     * @throws \PHPUnit\Framework\Exception
      * @throws RuntimeException
+     *
+     * @psalm-return MockObject&MockedType
      */
     public function getMock(): MockObject
     {
@@ -125,9 +130,10 @@ final class MockBuilder
     /**
      * Creates a mock object for an abstract class using a fluent interface.
      *
-     * @throws \ReflectionException
      * @throws \PHPUnit\Framework\Exception
      * @throws RuntimeException
+     *
+     * @psalm-return MockObject&MockedType
      */
     public function getMockForAbstractClass(): MockObject
     {
@@ -150,9 +156,10 @@ final class MockBuilder
     /**
      * Creates a mock object for a trait using a fluent interface.
      *
-     * @throws \ReflectionException
      * @throws \PHPUnit\Framework\Exception
      * @throws RuntimeException
+     *
+     * @psalm-return MockObject&MockedType
      */
     public function getMockForTrait(): MockObject
     {
@@ -184,8 +191,6 @@ final class MockBuilder
 
     /**
      * Specifies the subset of methods to not mock. Default is to mock all of them.
-     *
-     * @throws \ReflectionException
      */
     public function setMethodsExcept(array $methods = []): self
     {
@@ -209,10 +214,8 @@ final class MockBuilder
 
     /**
      * Specifies the name for the mock class.
-     *
-     * @param string $name
      */
-    public function setMockClassName($name): self
+    public function setMockClassName(string $name): self
     {
         $this->mockClassName = $name;
 
@@ -322,10 +325,8 @@ final class MockBuilder
 
     /**
      * Sets the proxy target.
-     *
-     * @param object $object
      */
-    public function setProxyTarget($object): self
+    public function setProxyTarget(object $object): self
     {
         $this->proxyTarget = $object;
 

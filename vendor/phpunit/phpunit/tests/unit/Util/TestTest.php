@@ -11,7 +11,6 @@ namespace PHPUnit\Util;
 
 use PharIo\Version\VersionConstraint;
 use PHPUnit\Framework\CodeCoverageException;
-use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\InvalidDataProviderException;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Warning;
@@ -1336,6 +1335,31 @@ final class TestTest extends TestCase
                 'testOne'
             )
         );
+    }
+
+    /**
+     * @dataProvider canSkipCoverageProvider
+     */
+    public function testCanSkipCoverage($testCase, $expectedCanSkip): void
+    {
+        require_once TEST_FILES_PATH . $testCase . '.php';
+
+        $test             = new $testCase('testSomething');
+        $coverageRequired = Test::requiresCodeCoverageDataCollection($test);
+        $canSkipCoverage  = !$coverageRequired;
+
+        $this->assertEquals($expectedCanSkip, $canSkipCoverage);
+    }
+
+    public function canSkipCoverageProvider(): array
+    {
+        return [
+            ['CoverageClassTest', false],
+            ['CoverageClassWithoutAnnotationsTest', false],
+            ['CoverageCoversOverridesCoversNothingTest', false],
+            ['CoverageClassNothingTest', true],
+            ['CoverageMethodNothingTest', true],
+        ];
     }
 
     private function getRequirementsTestClassFile(): string

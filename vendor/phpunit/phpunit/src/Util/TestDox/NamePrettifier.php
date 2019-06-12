@@ -11,6 +11,8 @@ namespace PHPUnit\Util\TestDox;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Util\Color;
+use PHPUnit\Util\Exception as UtilException;
+use PHPUnit\Util\Test;
 use SebastianBergmann\Exporter\Exporter;
 
 /**
@@ -19,7 +21,7 @@ use SebastianBergmann\Exporter\Exporter;
 final class NamePrettifier
 {
     /**
-     * @var array
+     * @var string[]
      */
     private $strings = [];
 
@@ -39,12 +41,12 @@ final class NamePrettifier
     public function prettifyTestClass(string $className): string
     {
         try {
-            $annotations = \PHPUnit\Util\Test::parseTestMethodAnnotations($className);
+            $annotations = Test::parseTestMethodAnnotations($className);
 
             if (isset($annotations['class']['testdox'][0])) {
                 return $annotations['class']['testdox'][0];
             }
-        } catch (\ReflectionException $e) {
+        } catch (UtilException $e) {
         }
 
         $result = $className;
@@ -68,7 +70,6 @@ final class NamePrettifier
 
     /**
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws \ReflectionException
      */
     public function prettifyTestCase(TestCase $test): string
     {
@@ -179,11 +180,19 @@ final class NamePrettifier
 
     /**
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws \ReflectionException
      */
     private function mapTestMethodParameterNamesToProvidedDataValues(TestCase $test): array
     {
-        $reflector          = new \ReflectionMethod(\get_class($test), $test->getName(false));
+        try {
+            $reflector = new \ReflectionMethod(\get_class($test), $test->getName(false));
+        } catch (\ReflectionException $e) {
+            throw new UtilException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+
         $providedData       = [];
         $providedDataValues = \array_values($test->getProvidedData());
         $i                  = 0;
@@ -192,7 +201,15 @@ final class NamePrettifier
 
         foreach ($reflector->getParameters() as $parameter) {
             if (!\array_key_exists($i, $providedDataValues) && $parameter->isDefaultValueAvailable()) {
-                $providedDataValues[$i] = $parameter->getDefaultValue();
+                try {
+                    $providedDataValues[$i] = $parameter->getDefaultValue();
+                } catch (\ReflectionException $e) {
+                    throw new UtilException(
+                        $e->getMessage(),
+                        (int) $e->getCode(),
+                        $e
+                    );
+                }
             }
 
             $value = $providedDataValues[$i++] ?? null;

@@ -9,8 +9,6 @@
  */
 namespace PHPUnit\Util\Log;
 
-use DOMDocument;
-use DOMElement;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExceptionWrapper;
 use PHPUnit\Framework\SelfDescribing;
@@ -19,11 +17,10 @@ use PHPUnit\Framework\TestFailure;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
+use PHPUnit\Util\Exception;
 use PHPUnit\Util\Filter;
 use PHPUnit\Util\Printer;
 use PHPUnit\Util\Xml;
-use ReflectionClass;
-use ReflectionException;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -31,12 +28,12 @@ use ReflectionException;
 final class JUnit extends Printer implements TestListener
 {
     /**
-     * @var DOMDocument
+     * @var \DOMDocument
      */
     private $document;
 
     /**
-     * @var DOMElement
+     * @var \DOMElement
      */
     private $root;
 
@@ -46,12 +43,7 @@ final class JUnit extends Printer implements TestListener
     private $reportUselessTests = false;
 
     /**
-     * @var bool
-     */
-    private $writeDocument = true;
-
-    /**
-     * @var DOMElement[]
+     * @var \DOMElement[]
      */
     private $testSuites = [];
 
@@ -91,20 +83,16 @@ final class JUnit extends Printer implements TestListener
     private $testSuiteLevel = 0;
 
     /**
-     * @var DOMElement
+     * @var \DOMElement
      */
     private $currentTestCase;
 
     /**
-     * Constructor.
-     *
      * @param null|mixed $out
-     *
-     * @throws \PHPUnit\Framework\Exception
      */
     public function __construct($out = null, bool $reportUselessTests = false)
     {
-        $this->document               = new DOMDocument('1.0', 'UTF-8');
+        $this->document               = new \DOMDocument('1.0', 'UTF-8');
         $this->document->formatOutput = true;
 
         $this->root = $this->document->createElement('testsuites');
@@ -120,18 +108,13 @@ final class JUnit extends Printer implements TestListener
      */
     public function flush(): void
     {
-        if ($this->writeDocument) {
-            $this->write($this->getXML());
-        }
+        $this->write($this->getXML());
 
         parent::flush();
     }
 
     /**
      * An error occurred.
-     *
-     * @throws \InvalidArgumentException
-     * @throws ReflectionException
      */
     public function addError(Test $test, \Throwable $t, float $time): void
     {
@@ -141,9 +124,6 @@ final class JUnit extends Printer implements TestListener
 
     /**
      * A warning occurred.
-     *
-     * @throws \InvalidArgumentException
-     * @throws ReflectionException
      */
     public function addWarning(Test $test, Warning $e, float $time): void
     {
@@ -153,9 +133,6 @@ final class JUnit extends Printer implements TestListener
 
     /**
      * A failure occurred.
-     *
-     * @throws \InvalidArgumentException
-     * @throws ReflectionException
      */
     public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
@@ -168,13 +145,11 @@ final class JUnit extends Printer implements TestListener
      */
     public function addIncompleteTest(Test $test, \Throwable $t, float $time): void
     {
-        $this->doAddSkipped($test);
+        $this->doAddSkipped();
     }
 
     /**
      * Risky test.
-     *
-     * @throws ReflectionException
      */
     public function addRiskyTest(Test $test, \Throwable $t, float $time): void
     {
@@ -202,7 +177,7 @@ final class JUnit extends Printer implements TestListener
      */
     public function addSkippedTest(Test $test, \Throwable $t, float $time): void
     {
-        $this->doAddSkipped($test);
+        $this->doAddSkipped();
     }
 
     /**
@@ -215,10 +190,10 @@ final class JUnit extends Printer implements TestListener
 
         if (\class_exists($suite->getName(), false)) {
             try {
-                $class = new ReflectionClass($suite->getName());
+                $class = new \ReflectionClass($suite->getName());
 
                 $testSuite->setAttribute('file', $class->getFileName());
-            } catch (ReflectionException $e) {
+            } catch (\ReflectionException $e) {
             }
         }
 
@@ -287,9 +262,6 @@ final class JUnit extends Printer implements TestListener
 
     /**
      * A test started.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      */
     public function startTest(Test $test): void
     {
@@ -302,11 +274,28 @@ final class JUnit extends Printer implements TestListener
         $testCase = $this->document->createElement('testcase');
         $testCase->setAttribute('name', $test->getName());
 
-        $class      = new ReflectionClass($test);
+        try {
+            $class = new \ReflectionClass($test);
+        } catch (\ReflectionException $e) {
+            throw new Exception(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+
         $methodName = $test->getName(!$usesDataprovider);
 
         if ($class->hasMethod($methodName)) {
-            $method = $class->getMethod($methodName);
+            try {
+                $method = $class->getMethod($methodName);
+            } catch (\ReflectionException $e) {
+                throw new Exception(
+                    $e->getMessage(),
+                    (int) $e->getCode(),
+                    $e
+                );
+            }
 
             $testCase->setAttribute('class', $class->getName());
             $testCase->setAttribute('classname', \str_replace('\\', '.', $class->getName()));
@@ -373,26 +362,6 @@ final class JUnit extends Printer implements TestListener
         return $this->document->saveXML();
     }
 
-    /**
-     * Enables or disables the writing of the document
-     * in flush().
-     *
-     * This is a "hack" needed for the integration of
-     * PHPUnit with Phing.
-     */
-    public function setWriteDocument(/*bool*/ $flag): void
-    {
-        if (\is_bool($flag)) {
-            $this->writeDocument = $flag;
-        }
-    }
-
-    /**
-     * Method which generalizes addError() and addFailure()
-     *
-     * @throws \InvalidArgumentException
-     * @throws ReflectionException
-     */
     private function doAddFault(Test $test, \Throwable $t, float $time, $type): void
     {
         if ($this->currentTestCase === null) {
@@ -422,13 +391,14 @@ final class JUnit extends Printer implements TestListener
         $this->currentTestCase->appendChild($fault);
     }
 
-    private function doAddSkipped(Test $test): void
+    private function doAddSkipped(): void
     {
         if ($this->currentTestCase === null) {
             return;
         }
 
         $skipped = $this->document->createElement('skipped');
+
         $this->currentTestCase->appendChild($skipped);
 
         $this->testSuiteSkipped[$this->testSuiteLevel]++;

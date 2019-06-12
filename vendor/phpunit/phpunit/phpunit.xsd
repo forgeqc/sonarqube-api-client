@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:annotation>
         <xs:documentation source="https://phpunit.de/documentation.html">
-            This Schema file defines the rules by which the XML configuration file of PHPUnit 8.1 may be structured.
+            This Schema file defines the rules by which the XML configuration file of PHPUnit 8.2 may be structured.
         </xs:documentation>
         <xs:appinfo source="https://phpunit.de/documentation.html"/>
     </xs:annotation>
@@ -176,19 +176,19 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="default"/>
             <xs:enumeration value="defects"/>
-            <xs:enumeration value="duration"/>
             <xs:enumeration value="depends"/>
             <xs:enumeration value="depends,defects"/>
-            <xs:enumeration value="random"/>
-            <xs:enumeration value="reverse"/>
+            <xs:enumeration value="depends,duration"/>
             <xs:enumeration value="depends,random"/>
             <xs:enumeration value="depends,reverse"/>
-            <xs:enumeration value="depends,duration"/>
+            <xs:enumeration value="duration"/>
             <xs:enumeration value="no-depends"/>
             <xs:enumeration value="no-depends,defects"/>
+            <xs:enumeration value="no-depends,duration"/>
             <xs:enumeration value="no-depends,random"/>
             <xs:enumeration value="no-depends,reverse"/>
-            <xs:enumeration value="no-depends,duration"/>
+            <xs:enumeration value="random"/>
+            <xs:enumeration value="reverse"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="fileFilterType">

@@ -9,8 +9,11 @@ php:
   - 7.2
   - 7.3
   - 7.4snapshot
+  - nightly
 
 matrix:
+  allow_failures:
+    - php: nightly
   fast_finish: true
 
 env:
@@ -47,10 +50,19 @@ notifications:
 
 jobs:
   include:
-    - stage: Static Code Analysis
+    - stage: "Static Code Analysis"
       php: 7.3
       env: php-cs-fixer
       install:
         - phpenv config-rm xdebug.ini
       script:
         - ./tools/php-cs-fixer fix --dry-run -v --show-progress=dots --diff-format=udiff
+    - stage: "Static Code Analysis"
+      php: 7.3
+      env: psalm
+      install:
+        - phpenv config-rm xdebug.ini
+      script:
+        - travis_retry ./tools/composer update $DEFAULT_COMPOSER_FLAGS
+        - ./tools/psalm --config=.psalm/static-analysis.xml --no-progress
+        - ./tools/psalm --config=.psalm/config.xml --no-progress --shepherd --stats

@@ -58,7 +58,6 @@ use PHPUnit\Util\InvalidArgumentHelper;
 use PHPUnit\Util\Type;
 use PHPUnit\Util\Xml;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionObject;
 use Traversable;
 
@@ -244,7 +243,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -339,7 +337,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -408,7 +405,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -460,7 +456,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -508,7 +503,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -555,7 +549,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -670,7 +663,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -802,7 +794,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -828,6 +819,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert empty $actual
      */
     public static function assertEmpty($actual, string $message = ''): void
     {
@@ -842,7 +835,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -863,6 +855,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !empty $actual
      */
     public static function assertNotEmpty($actual, string $message = ''): void
     {
@@ -877,7 +871,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -911,7 +904,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -950,7 +942,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -985,7 +976,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -1020,7 +1010,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -1320,6 +1309,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert true $condition
      */
     public static function assertTrue($condition, string $message = ''): void
     {
@@ -1331,6 +1322,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !true $condition
      */
     public static function assertNotTrue($condition, string $message = ''): void
     {
@@ -1342,6 +1335,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert false $condition
      */
     public static function assertFalse($condition, string $message = ''): void
     {
@@ -1353,6 +1348,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !false $condition
      */
     public static function assertNotFalse($condition, string $message = ''): void
     {
@@ -1364,6 +1361,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert null $actual
      */
     public static function assertNull($actual, string $message = ''): void
     {
@@ -1375,6 +1374,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !null $actual
      */
     public static function assertNotNull($actual, string $message = ''): void
     {
@@ -1571,6 +1572,10 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-template ExpectedType
+     * @psalm-param ExpectedType $expected
+     * @psalm-assert =ExpectedType $actual
      */
     public static function assertSame($expected, $actual, string $message = ''): void
     {
@@ -1589,7 +1594,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -1637,7 +1641,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -1660,6 +1663,10 @@ abstract class Assert
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws Exception
+     *
+     * @psalm-template ExpectedType of object
+     * @psalm-param class-string<ExpectedType> $expected
+     * @psalm-assert ExpectedType $actual
      */
     public static function assertInstanceOf(string $expected, $actual, string $message = ''): void
     {
@@ -1681,11 +1688,12 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
      * @codeCoverageIgnore
+     *
+     * @psalm-param class-string $expected
      */
     public static function assertAttributeInstanceOf(string $expected, string $attributeName, $classOrObject, string $message = ''): void
     {
@@ -1704,6 +1712,10 @@ abstract class Assert
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws Exception
+     *
+     * @psalm-template ExpectedType of object
+     * @psalm-param class-string<ExpectedType> $expected
+     * @psalm-assert !ExpectedType $actual
      */
     public static function assertNotInstanceOf(string $expected, $actual, string $message = ''): void
     {
@@ -1727,11 +1739,12 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
      * @codeCoverageIgnore
+     *
+     * @psalm-param class-string $expected
      */
     public static function assertAttributeNotInstanceOf(string $expected, string $attributeName, $classOrObject, string $message = ''): void
     {
@@ -1771,7 +1784,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -1793,6 +1805,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert array $actual
      */
     public static function assertIsArray($actual, string $message = ''): void
     {
@@ -1808,6 +1822,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert bool $actual
      */
     public static function assertIsBool($actual, string $message = ''): void
     {
@@ -1823,6 +1839,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert float $actual
      */
     public static function assertIsFloat($actual, string $message = ''): void
     {
@@ -1838,6 +1856,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert int $actual
      */
     public static function assertIsInt($actual, string $message = ''): void
     {
@@ -1853,6 +1873,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert numeric $actual
      */
     public static function assertIsNumeric($actual, string $message = ''): void
     {
@@ -1868,6 +1890,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert object $actual
      */
     public static function assertIsObject($actual, string $message = ''): void
     {
@@ -1883,6 +1907,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert resource $actual
      */
     public static function assertIsResource($actual, string $message = ''): void
     {
@@ -1898,6 +1924,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert string $actual
      */
     public static function assertIsString($actual, string $message = ''): void
     {
@@ -1913,6 +1941,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert scalar $actual
      */
     public static function assertIsScalar($actual, string $message = ''): void
     {
@@ -1928,6 +1958,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert callable $actual
      */
     public static function assertIsCallable($actual, string $message = ''): void
     {
@@ -1943,6 +1975,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert iterable $actual
      */
     public static function assertIsIterable($actual, string $message = ''): void
     {
@@ -1980,6 +2014,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !array $actual
      */
     public static function assertIsNotArray($actual, string $message = ''): void
     {
@@ -1995,6 +2031,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !bool $actual
      */
     public static function assertIsNotBool($actual, string $message = ''): void
     {
@@ -2010,6 +2048,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !float $actual
      */
     public static function assertIsNotFloat($actual, string $message = ''): void
     {
@@ -2025,6 +2065,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !int $actual
      */
     public static function assertIsNotInt($actual, string $message = ''): void
     {
@@ -2040,6 +2082,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !numeric $actual
      */
     public static function assertIsNotNumeric($actual, string $message = ''): void
     {
@@ -2055,6 +2099,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !object $actual
      */
     public static function assertIsNotObject($actual, string $message = ''): void
     {
@@ -2070,6 +2116,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !resource $actual
      */
     public static function assertIsNotResource($actual, string $message = ''): void
     {
@@ -2085,6 +2133,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !string $actual
      */
     public static function assertIsNotString($actual, string $message = ''): void
     {
@@ -2100,6 +2150,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !scalar $actual
      */
     public static function assertIsNotScalar($actual, string $message = ''): void
     {
@@ -2115,6 +2167,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !callable $actual
      */
     public static function assertIsNotCallable($actual, string $message = ''): void
     {
@@ -2130,6 +2184,8 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @psalm-assert !iterable $actual
      */
     public static function assertIsNotIterable($actual, string $message = ''): void
     {
@@ -2147,7 +2203,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws ReflectionException
      * @throws Exception
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
@@ -3007,6 +3062,8 @@ abstract class Assert
      * Fails a test with the given message.
      *
      * @throws AssertionFailedError
+     *
+     * @psalm-return never-return
      */
     public static function fail(string $message = ''): void
     {
@@ -3022,7 +3079,6 @@ abstract class Assert
      * @param object|string $classOrObject
      *
      * @throws Exception
-     * @throws ReflectionException
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
      * @codeCoverageIgnore
@@ -3067,7 +3123,6 @@ abstract class Assert
      * This also works for attributes that are declared protected or private.
      *
      * @throws Exception
-     * @throws ReflectionException
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/3338
      * @codeCoverageIgnore
@@ -3084,7 +3139,15 @@ abstract class Assert
             throw InvalidArgumentHelper::factory(2, 'valid attribute name');
         }
 
-        $class = new ReflectionClass($className);
+        try {
+            $class = new ReflectionClass($className);
+        } catch (\ReflectionException $e) {
+            throw new Exception(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
 
         while ($class) {
             $attributes = $class->getStaticProperties();
@@ -3127,27 +3190,24 @@ abstract class Assert
             throw InvalidArgumentHelper::factory(2, 'valid attribute name');
         }
 
-        try {
-            $reflector = new ReflectionObject($object);
+        $reflector = new ReflectionObject($object);
 
-            do {
-                try {
-                    $attribute = $reflector->getProperty($attributeName);
+        do {
+            try {
+                $attribute = $reflector->getProperty($attributeName);
 
-                    if (!$attribute || $attribute->isPublic()) {
-                        return $object->$attributeName;
-                    }
-
-                    $attribute->setAccessible(true);
-                    $value = $attribute->getValue($object);
-                    $attribute->setAccessible(false);
-
-                    return $value;
-                } catch (ReflectionException $e) {
+                if (!$attribute || $attribute->isPublic()) {
+                    return $object->$attributeName;
                 }
-            } while ($reflector = $reflector->getParentClass());
-        } catch (ReflectionException $e) {
-        }
+
+                $attribute->setAccessible(true);
+                $value = $attribute->getValue($object);
+                $attribute->setAccessible(false);
+
+                return $value;
+            } catch (\ReflectionException $e) {
+            }
+        } while ($reflector = $reflector->getParentClass());
 
         throw new Exception(
             \sprintf(

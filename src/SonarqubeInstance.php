@@ -9,10 +9,12 @@ use Exception;
 class SonarqubeInstance {
 
   protected $httpclient;
+  protected $organzation;
 
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
-  public function __construct($httpclient) {
+  public function __construct($httpclient, $organization = null) {
       $this->httpclient = $httpclient;
+      $this->organization = $organization;
   }
 
   //Retrieve all Sonarqube projects (projects visibility related to API token access rights)
@@ -36,6 +38,28 @@ class SonarqubeInstance {
     return $projects;
 
   }
+
+  //Create a Sonarqube group. Should return a JSON response with group details.
+  public function createGroup($group) {
+    $params = ['name' => $group];
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+    $response = $this->httpclient->request('POST', 'user_groups/create', ['form_params' => $params]);
+    return json_decode($response->getBody(), true);
+  }
+
+  //Delete a Sonarqube group. No response is returned.
+  public function deleteGroup($group) {
+    $params = ['name' => $group];
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+    $response = $this->httpclient->request('POST', 'user_groups/delete', ['form_params' => $params]);
+    return json_decode($response->getBody(), true);
+  }
+
+
 
 }
 

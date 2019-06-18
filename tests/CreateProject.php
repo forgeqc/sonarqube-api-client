@@ -10,11 +10,11 @@
   $projectKey = 'forgeqc_sonarqube-api-client';
   $project = new SonarqubeProject($api, $projectKey);
 
-  //if (!$project->exists()) {
-  //  $project->create('Test Project From Api', 'public', 'testapi');
-  //}
+  if (!$project->exists()) {
+    $project->create('Test Project From Api', 'public', 'testapi');
+  }
 
-  var_dump($project->getMeasuresHistory('2019-06-45'));
+  //var_dump($project->getMeasuresHistory('2019-06-45'));
 
   //$instance = new SonarqubeInstance($api);
   //var_dump(count($instance->getProjects()));

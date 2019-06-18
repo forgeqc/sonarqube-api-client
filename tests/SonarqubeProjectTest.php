@@ -6,7 +6,14 @@ use PHPUnit\Framework\TestCase;
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use ForgeQC\SonarqubeApiClient\SonarqubeProject;
 use GuzzleHttp\Exception\RequestException;
+use Dotenv\Dotenv;
 use \UnexpectedValueException;
+
+//Use Dotenv to retrieve secret variables from .env files
+//Required to use travis-ci secret variables
+$dotenv = Dotenv::create(dirname(__DIR__, 1));
+$dotenv->load();
+$sonar_api_key = getenv('SONAR_PHPUNIT_TOKEN');
 
 class SonarqubeProjectTest extends TestCase
 {

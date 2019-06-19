@@ -145,6 +145,44 @@ class SonarqubeProject {
     return true;
   }
 
+  //Grant project permissions to a User
+  public function addUserPermission($login, $permission) {
+    //Permissions parameter validation
+    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
+    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
+        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
+    }
+
+    $params['login'] = $login;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+
+    $this->httpclient->request('POST', 'permissions/add_user', ['form_params' => $params]);
+    return true;
+  }
+
+  //Remove project permissions to a User
+  public function removeUserPermission($login, $permission) {
+    //Permissions parameter validation
+    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
+    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
+        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
+    }
+
+    $params['login'] = $login;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+
+    $this->httpclient->request('POST', 'permissions/remove_user', ['form_params' => $params]);
+    return true;
+  }
+
 }
 
 ?>

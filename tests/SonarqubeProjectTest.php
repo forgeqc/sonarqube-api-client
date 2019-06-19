@@ -167,5 +167,33 @@ class SonarqubeProjectTest extends TestCase
 
   }
 
+  //Test addUserPermission() function
+  //Valid permission values are 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user'
+  public function testAddRemoveUserPermission()
+  {
+    global $sonar_api_key;
 
+    //Connect to sonarqube API
+    $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+    $instance = new SonarqubeInstance($api, 'testapi');
+
+    //Define group name used for the test scenario
+    $testUser = 'matt6697@github';
+
+    //Grant permission on testProjectFromApi project in 'testapi' sonarcloud.io organization
+    $projectKey = 'testProjectFromApi';
+    $project = new SonarqubeProject($api, $projectKey, 'testapi');
+
+    $this->assertSame(true,$project->addUserPermission($testUser, 'admin'));
+    $this->assertSame(true,$project->addUserPermission($testUser, 'codeviewer'));
+    $this->assertSame(true,$project->addUserPermission($testUser, 'issueadmin'));
+    $this->assertSame(true,$project->addUserPermission($testUser, 'securityhotspotadmin'));
+    $this->assertSame(true,$project->addUserPermission($testUser, 'scan'));
+    $this->assertSame(true,$project->addUserPermission($testUser, 'user'));
+
+    $this->assertSame(true,$project->removeUserPermission($testUser, 'admin'));
+    $this->assertSame(true,$project->removeUserPermission($testUser, 'issueadmin'));
+    $this->assertSame(true,$project->removeUserPermission($testUser, 'securityhotspotadmin'));
+    $this->assertSame(true,$project->removeUserPermission($testUser, 'scan'));
+  }
 }

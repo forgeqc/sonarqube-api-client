@@ -42,7 +42,7 @@ class SonarqubeInstance {
 
   //Create a Sonarqube group. Should return a JSON response with group details.
   public function createGroup($group) {
-    $params = ['name' => $group];
+    $params['name'] = $group;
     if(isset($this->organization)) {
       $params['organization'] = $this->organization;
     }
@@ -52,7 +52,7 @@ class SonarqubeInstance {
 
   //Delete a Sonarqube group. No response is returned.
   public function deleteGroup($groupName) {
-    $params = ['name' => $groupName];
+    $params['name'] = $groupName;
     if(isset($this->organization)) {
       $params['organization'] = $this->organization;
     }
@@ -64,6 +64,28 @@ class SonarqubeInstance {
     }
   }
 
+  //Create a Sonarqube user. Should return a JSON response with user details.
+  public function createUser($login, $name, $email) {
+    $params['login'] = $login;
+    $params['name'] = $name;
+    $params['email'] = $email;
+    $params['local'] = false; //External user created without password. Local login is denied.
+
+    $response = $this->httpclient->request('POST', 'users/create', ['form_params' => $params]);
+    return json_decode($response->getBody(), true);
+  }
+
+  //Deactivate a Sonarqube user. No response is returned.
+  public function deactivateUser($login) {
+    $params['login'] = $login;
+
+    $response = $this->httpclient->request('POST', 'users/deactivate', ['form_params' => $params]);
+    $data = json_decode($response->getBody(), true);
+
+    //Boolean returned by sonarqube API
+    return $data['user']['active'];
+
+  }
 
 
 }

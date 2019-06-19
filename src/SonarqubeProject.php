@@ -110,77 +110,74 @@ class SonarqubeProject {
   //Grant project permissions to a Group
   public function addGroupPermission($groupName, $permission) {
     //Permissions parameter validation
-    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
-    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
-        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
-    }
+    if ($this->testPermissionValues($permission)) {
+      $params['groupName'] = $groupName;
+      $params['projectKey'] = $this->key;
+      $params['permission'] = $permission;
+      if(isset($this->organization)) {
+        $params['organization'] = $this->organization;
+      }
 
-    $params['groupName'] = $groupName;
-    $params['projectKey'] = $this->key;
-    $params['permission'] = $permission;
-    if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
+      $this->httpclient->request('POST', 'permissions/add_group', ['form_params' => $params]);
+      return true;
     }
-
-    $this->httpclient->request('POST', 'permissions/add_group', ['form_params' => $params]);
-    return true;
   }
 
   //Remove project permissions to a Group
   public function removeGroupPermission($groupName, $permission) {
     //Permissions parameter validation
-    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
-    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
-        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
-    }
+    if ($this->testPermissionValues($permission)) {
+      $params['groupName'] = $groupName;
+      $params['projectKey'] = $this->key;
+      $params['permission'] = $permission;
+      if(isset($this->organization)) {
+        $params['organization'] = $this->organization;
+      }
 
-    $params['groupName'] = $groupName;
-    $params['projectKey'] = $this->key;
-    $params['permission'] = $permission;
-    if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
+      $this->httpclient->request('POST', 'permissions/remove_group', ['form_params' => $params]);
+      return true;
     }
-
-    $this->httpclient->request('POST', 'permissions/remove_group', ['form_params' => $params]);
-    return true;
   }
 
   //Grant project permissions to a User
   public function addUserPermission($login, $permission) {
     //Permissions parameter validation
-    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
-    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
-        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
-    }
+    if ($this->testPermissionValues($permission)) {
+      $params['login'] = $login;
+      $params['projectKey'] = $this->key;
+      $params['permission'] = $permission;
+      if(isset($this->organization)) {
+        $params['organization'] = $this->organization;
+      }
 
-    $params['login'] = $login;
-    $params['projectKey'] = $this->key;
-    $params['permission'] = $permission;
-    if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
+      $this->httpclient->request('POST', 'permissions/add_user', ['form_params' => $params]);
+      return true;
     }
-
-    $this->httpclient->request('POST', 'permissions/add_user', ['form_params' => $params]);
-    return true;
   }
 
   //Remove project permissions to a User
   public function removeUserPermission($login, $permission) {
     //Permissions parameter validation
+    if ($this->testPermissionValues($permission)) {
+      $params['login'] = $login;
+      $params['projectKey'] = $this->key;
+      $params['permission'] = $permission;
+      if(isset($this->organization)) {
+        $params['organization'] = $this->organization;
+      }
+
+      $this->httpclient->request('POST', 'permissions/remove_user', ['form_params' => $params]);
+      return true;
+    }
+  }
+
+  private function testPermissionValues($permission) {
     $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
     if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
         throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
+    } else {
+      return true;
     }
-
-    $params['login'] = $login;
-    $params['projectKey'] = $this->key;
-    $params['permission'] = $permission;
-    if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
-    }
-
-    $this->httpclient->request('POST', 'permissions/remove_user', ['form_params' => $params]);
-    return true;
   }
 
 }

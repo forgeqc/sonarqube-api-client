@@ -5,6 +5,7 @@ namespace Tests\ForgeQC\SonarqubeApiClient;
 use PHPUnit\Framework\TestCase;
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use ForgeQC\SonarqubeApiClient\SonarqubeInstance;
+use GuzzleHttp\Exception\ClientException;
 use Dotenv\Dotenv;
 
 //Use Dotenv to retrieve secret variables from .env files
@@ -51,6 +52,22 @@ class SonarqubeInstanceTest extends TestCase
 
     //Test delete a non existing group
     $this->assertSame(false, $instance->deleteGroup('NonExistingGroup'));
+
+  }
+
+  //Test createGroup() function
+  public function testCreateDeleteUser()
+  {
+    //Tel PHPUNIT that the correct behavior of the tested function is to throw an exception
+    $this->expectException(ClientException::class);
+
+    global $sonar_api_key;
+
+    //Connect to sonarqube API
+    $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+    $instance = new SonarqubeInstance($api, 'testapi');
+
+    $user = $instance->createUser('TestUser', 'TestUser', 'test@user.local');
 
   }
 

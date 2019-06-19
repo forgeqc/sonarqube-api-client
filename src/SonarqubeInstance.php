@@ -4,12 +4,13 @@ namespace ForgeQC\SonarqubeApiClient;
 
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
 use Exception;
 
 class SonarqubeInstance {
 
   protected $httpclient;
-  protected $organzation;
+  protected $organization;
 
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
   public function __construct($httpclient, $organization = null) {
@@ -50,13 +51,17 @@ class SonarqubeInstance {
   }
 
   //Delete a Sonarqube group. No response is returned.
-  public function deleteGroup($group) {
-    $params = ['name' => $group];
+  public function deleteGroup($groupName) {
+    $params = ['name' => $groupName];
     if(isset($this->organization)) {
       $params['organization'] = $this->organization;
     }
-    $response = $this->httpclient->request('POST', 'user_groups/delete', ['form_params' => $params]);
-    return json_decode($response->getBody(), true);
+    try {
+      $this->httpclient->request('POST', 'user_groups/delete', ['form_params' => $params]);
+      return true;
+    } catch (ClientException $e) {
+      return false;
+    }
   }
 
 

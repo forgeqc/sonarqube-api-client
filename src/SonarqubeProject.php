@@ -10,6 +10,7 @@ use \UnexpectedValueException;
 class SonarqubeProject {
 
   protected $httpclient;
+  protected $organization;
   protected $key;
   protected $name;
   protected $visibility;
@@ -18,9 +19,10 @@ class SonarqubeProject {
   private const COMPONENT = 'component';
 
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
-  public function __construct($httpclient, $projectKey) {
+  public function __construct($httpclient, $projectKey, $organization = null) {
       $this->httpclient = $httpclient;
       $this->key = $projectKey;
+      $this->organization = $organization;
   }
 
   //Test if sonarqube project exists
@@ -103,6 +105,44 @@ class SonarqubeProject {
     else {
       throw new UnexpectedValueException('The \'date\' parameter is missing or is not a valid YYYY-MM-DD date format.');
     }
+  }
+
+  //Grant project permissions to a Group
+  public function addGroupPermission($groupName, $permission) {
+    //Permissions parameter validation
+    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
+    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
+        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
+    }
+
+    $params['groupName'] = $groupName;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+
+    $this->httpclient->request('POST', 'permissions/add_group', ['form_params' => $params]);
+    return true;
+  }
+
+  //Remove project permissions to a Group
+  public function removeGroupPermission($groupName, $permission) {
+    //Permissions parameter validation
+    $permissionValues = array('admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user');
+    if(!$permissionValues || !in_array($permission, $permissionValues, true)) {
+        throw new UnexpectedValueException("The 'permission' parameter is missing or is equal to 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan' or 'user'.");
+    }
+
+    $params['groupName'] = $groupName;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+
+    $this->httpclient->request('POST', 'permissions/remove_group', ['form_params' => $params]);
+    return true;
   }
 
 }

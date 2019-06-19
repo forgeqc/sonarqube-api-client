@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/forgeqc/sonarqube-api-client.svg?branch=master)](https://travis-ci.org/forgeqc/sonarqube-api-client)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=forgeqc_sonarqube-api-client&metric=alert_status)](https://sonarcloud.io/dashboard?id=forgeqc_sonarqube-api-client)
 
-PHP client library for Sonarqube API access from a PHP project.
+PHP client library for Sonarqube API access from a PHP project. The library has been extensively tested with **sonarqube** and **sonarcloud.io** as it is fully compatible with sonarcloud.io organizations.
 
 ## Installation
 
@@ -53,6 +53,47 @@ if (!$project->exists()) {
 $measures = $project->getMeasures();
 
 $measuresHistory = $project->getMeasuresHistory('2019-06-45');
+```
+
+### Manage Permissions
+Create or delete a Sonarqube group :
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+$sonarcloudOrganization = 'testapi';
+$instance = new SonarqubeInstance($api, $sonarcloudOrganization);
+
+//Group creation
+$group = $instance->createGroup('TestGroup');
+
+//Group deletion
+$result = $instance->deleteGroup('TestGroup');
+```
+
+Grant project permissions to a group. The library provides functions to **add** or **remove** projects permissions. The **codeviewer** and **user** permissions can't be removed from a public project. Functions return `true` if permissions are successfully granted or removed.
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+$sonarcloudOrganization = 'testapi';
+
+//Grant permission on testProjectFromApi project in 'testapi' sonarcloud.io organization
+$projectKey = 'testProjectFromApi';
+$project = new SonarqubeProject($api, $projectKey, $sonarcloudOrganization);
+
+//Define group name used for the test scenario
+$testGroup = 'TestGroupPermissions';
+
+$project->addGroupPermission($testGroup, 'admin');
+$project->addGroupPermission($testGroup, 'codeviewer');
+$project->addGroupPermission($testGroup, 'issueadmin');
+$project->addGroupPermission($testGroup, 'securityhotspotadmin');
+$project->addGroupPermission($testGroup, 'scan');
+$project->addGroupPermission($testGroup, 'user');
+
+$project->removeGroupPermission($testGroup, 'admin');
+$project->removeGroupPermission($testGroup, 'issueadmin');
+$project->removeGroupPermission($testGroup, 'securityhotspotadmin');
+$project->removeGroupPermission($testGroup, 'scan');
 ```
 
 ## Contributing

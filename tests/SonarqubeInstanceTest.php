@@ -46,8 +46,11 @@ class SonarqubeInstanceTest extends TestCase
     $group = $instance->createGroup('TestGroup');
     $this->assertSame('TestGroup', $group['group']['name']);
 
-    $result = $instance->deleteGroup('TestGroup');
-    $this->assertNull($result);
+    //Test delete an existing group
+    $this->assertSame(true, $instance->deleteGroup('TestGroup'));
+
+    //Test delete a non existing group
+    $this->assertSame(false, $instance->deleteGroup('NonExistingGroup'));
 
   }
 

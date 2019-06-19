@@ -5,6 +5,7 @@ namespace Tests\ForgeQC\SonarqubeApiClient;
 use PHPUnit\Framework\TestCase;
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use ForgeQC\SonarqubeApiClient\SonarqubeProject;
+use ForgeQC\SonarqubeApiClient\SonarqubeInstance;
 use GuzzleHttp\Exception\RequestException;
 use Dotenv\Dotenv;
 use \UnexpectedValueException;
@@ -127,6 +128,43 @@ class SonarqubeProjectTest extends TestCase
 
       $measures = $project->getMeasuresHistory('2019-18-43');
       //Should throw a UnexpectedValueException
+  }
+
+  //Test addGroupPermission() function
+  //Valid permission values are 'admin', 'codeviewer', 'issueadmin', 'securityhotspotadmin', 'scan', 'user'
+  public function testAddRemoveGroupPermission()
+  {
+    global $sonar_api_key;
+
+    //Connect to sonarqube API
+    $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+    $instance = new SonarqubeInstance($api, 'testapi');
+
+    //Define group name used for the test scenario
+    $testGroup = 'TestGroupPermissions';
+
+    //Create group
+    $group = $instance->createGroup($testGroup);
+
+    //Grant permission on testProjectFromApi project in 'testapi' sonarcloud.io organization
+    $projectKey = 'testProjectFromApi';
+    $project = new SonarqubeProject($api, $projectKey, 'testapi');
+
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'admin'));
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'codeviewer'));
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'issueadmin'));
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'securityhotspotadmin'));
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'scan'));
+    $this->assertSame(true,$project->addGroupPermission($testGroup, 'user'));
+
+    $this->assertSame(true,$project->removeGroupPermission($testGroup, 'admin'));
+    $this->assertSame(true,$project->removeGroupPermission($testGroup, 'issueadmin'));
+    $this->assertSame(true,$project->removeGroupPermission($testGroup, 'securityhotspotadmin'));
+    $this->assertSame(true,$project->removeGroupPermission($testGroup, 'scan'));
+
+    //Delete group after test scenario
+    $result = $instance->deleteGroup($testGroup);
+
   }
 
 

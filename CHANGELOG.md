@@ -1,6 +1,20 @@
 # Changelog
 
-## Version 0.1.0
+## Version 1.0.0
 - Initial release
-- Sonarqube instance function SonarqubeInstance::getProjects() returning all projects handled by the sonarqube instance.
-- Sonarqube project functions exists(), create(), getProperties(), getMeasures(), getMeasuresHistory().
+- SonarqubeInstance :
+  - getProjects()
+  - createGroup()
+  - deleteGroup()
+  - createUser()
+  - deactivateUser()
+- SonarqubeProject :
+  - exists()
+  - create()
+  - getProperties()
+  - getMeasures()
+  - getMeasuresHistory().
+  - addGroupPermission()
+  - removeGroupPermission()
+  - addUserPermission()
+  - removeUserPermission()

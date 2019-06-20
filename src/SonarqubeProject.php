@@ -111,13 +111,7 @@ class SonarqubeProject {
   public function addGroupPermission($groupName, $permission) {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
-      $params['groupName'] = $groupName;
-      $params['projectKey'] = $this->key;
-      $params['permission'] = $permission;
-      if(isset($this->organization)) {
-        $params['organization'] = $this->organization;
-      }
-
+      $params = $this->groupPermissionRequestArray($groupName, $permission);
       $this->httpclient->request('POST', 'permissions/add_group', ['form_params' => $params]);
       return true;
     }
@@ -127,13 +121,7 @@ class SonarqubeProject {
   public function removeGroupPermission($groupName, $permission) {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
-      $params['groupName'] = $groupName;
-      $params['projectKey'] = $this->key;
-      $params['permission'] = $permission;
-      if(isset($this->organization)) {
-        $params['organization'] = $this->organization;
-      }
-
+      $params = $this->groupPermissionRequestArray($groupName, $permission);
       $this->httpclient->request('POST', 'permissions/remove_group', ['form_params' => $params]);
       return true;
     }
@@ -143,13 +131,7 @@ class SonarqubeProject {
   public function addUserPermission($login, $permission) {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
-      $params['login'] = $login;
-      $params['projectKey'] = $this->key;
-      $params['permission'] = $permission;
-      if(isset($this->organization)) {
-        $params['organization'] = $this->organization;
-      }
-
+      $params = $this->userPermissionRequestArray($login, $permission);
       $this->httpclient->request('POST', 'permissions/add_user', ['form_params' => $params]);
       return true;
     }
@@ -159,13 +141,7 @@ class SonarqubeProject {
   public function removeUserPermission($login, $permission) {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
-      $params['login'] = $login;
-      $params['projectKey'] = $this->key;
-      $params['permission'] = $permission;
-      if(isset($this->organization)) {
-        $params['organization'] = $this->organization;
-      }
-
+      $params = $this->userPermissionRequestArray($login, $permission);
       $this->httpclient->request('POST', 'permissions/remove_user', ['form_params' => $params]);
       return true;
     }
@@ -178,6 +154,26 @@ class SonarqubeProject {
     } else {
       return true;
     }
+  }
+
+  private function groupPermissionRequestArray($groupName, $permission) {
+    $params['groupName'] = $groupName;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+    return $params;
+  }
+
+  private function userPermissionRequestArray($login, $permission) {
+    $params['login'] = $login;
+    $params['projectKey'] = $this->key;
+    $params['permission'] = $permission;
+    if(isset($this->organization)) {
+      $params['organization'] = $this->organization;
+    }
+    return $params;
   }
 
 }

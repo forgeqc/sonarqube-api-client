@@ -55,7 +55,22 @@ $measures = $project->getMeasures();
 $measuresHistory = $project->getMeasuresHistory('2019-06-45');
 ```
 
-### Manage Permissions
+### Manage users, groups, and permissions
+Create or deactivate a Sonarqube user :
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
+$sonarcloudOrganization = 'testapi';
+$instance = new SonarqubeInstance($api, $sonarcloudOrganization);
+
+//Create user or activate existing deactivated user
+$instance->createUser('TestUser', 'TestUser', 'test@user.local');
+
+//Deactivate users
+ $instance->deactivateUser($'TestUser');
+
+```
+
 Create or delete a Sonarqube group :
 
 ```
@@ -70,7 +85,7 @@ $group = $instance->createGroup('TestGroup');
 $result = $instance->deleteGroup('TestGroup');
 ```
 
-Grant project permissions to a group. The library provides functions to **add** or **remove** projects permissions. The **codeviewer** and **user** permissions can't be removed from a public project. Functions return `true` if permissions are successfully granted or removed.
+Grant project permissions to a user or a group. The library provides functions to **add** or **remove** projects permissions. The **codeviewer** and **user** permissions can't be removed from a public project. Functions return `true` if permissions are successfully granted or removed.
 
 ```
 $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
@@ -80,7 +95,7 @@ $sonarcloudOrganization = 'testapi';
 $projectKey = 'testProjectFromApi';
 $project = new SonarqubeProject($api, $projectKey, $sonarcloudOrganization);
 
-//Define group name used for the test scenario
+//Grant project permissions to a group
 $testGroup = 'TestGroupPermissions';
 
 $project->addGroupPermission($testGroup, 'admin');
@@ -94,6 +109,20 @@ $project->removeGroupPermission($testGroup, 'admin');
 $project->removeGroupPermission($testGroup, 'issueadmin');
 $project->removeGroupPermission($testGroup, 'securityhotspotadmin');
 $project->removeGroupPermission($testGroup, 'scan');
+
+//Grant project permissions to a user
+$project->addUserPermission($testUser, 'admin');
+$project->addUserPermission($testUser, 'codeviewer')
+$project->addUserPermission($testUser, 'issueadmin');
+$project->addUserPermission($testUser, 'securityhotspotadmin');
+$project->addUserPermission($testUser, 'scan');
+$project->addUserPermission($testUser, 'user');
+
+$project->removeUserPermission($testUser, 'admin');
+$project->removeUserPermission($testUser, 'issueadmin');
+$project->removeUserPermission($testUser, 'securityhotspotadmin');
+$project->removeUserPermission($testUser, 'scan');
+
 ```
 
 ## Contributing

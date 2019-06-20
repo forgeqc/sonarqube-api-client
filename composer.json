@@ -1,9 +1,9 @@
 {
   "name": "forgeqc/sonarqube-api-client",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "library",
-  "description": "A simple PHP client for Sonarqube API",
-  "keywords": ["sonarqube","api","client"],
+  "description": "A simple PHP client for sonarqube and sonarcloud.io API",
+  "keywords": ["sonarqube","sonarcloud","api","client"],
   "license": "MIT",
   "require": {
       "guzzlehttp/guzzle": "^6.3",

@@ -66,11 +66,16 @@ class SonarqubeProject {
   }
 
   //Retrieve Sonarqube project measures
-  public function getMeasures() {
+  public function getMeasures($metricKeys=null) {
     $projects_measures = array();
 
     //Extract the project quality measures from sonarqube
-    $response = $this->httpclient->request('GET', 'measures/component?metricKeys=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key);
+    if(isset($metricKeys)) {
+      $response = $this->httpclient->request('GET', 'measures/component?metricKeys='.$metricKeys.'&component='. $this->key);
+    }
+    else {
+      $response = $this->httpclient->request('GET', 'measures/component?metricKeys=alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort&component='. $this->key);
+    }
     $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
 
     //Parse measures and inject in result array
@@ -84,13 +89,18 @@ class SonarqubeProject {
   }
 
   //Retrieve Sonarqube project measures
-  public function getMeasuresHistory($date) {
+  public function getMeasuresHistory($date, $metricKeys=null) {
     //Check if date is set and valid or return HTTP/400 Bad Request error
     if(preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/",$date)) {
       $projects_measures = array();
 
       //Extract the project quality measures from sonarqube
-      $response = $this->httpclient->request('GET', 'measures/search_history?metrics=coverage,sqale_index,sqale_rating,bugs,reliability_remediation_effort,security_rating,vulnerabilities,security_remediation_effort&component='. $this->key.'&from='.$date);
+      if(isset($metricKeys)) {
+        $response = $this->httpclient->request('GET', 'measures/search_history?metrics='.$metricKeys.'&component='. $this->key.'&from='.$date);
+      }
+      else {
+        $response = $this->httpclient->request('GET', 'measures/search_history?metrics=alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort&component='. $this->key.'&from='.$date);
+      }
       $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
 
       //Parse measures and inject in result array

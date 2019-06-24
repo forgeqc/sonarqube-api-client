@@ -87,9 +87,12 @@ class SonarqubeProjectTest extends TestCase
       $this->assertArrayHasKey('reliability_remediation_effort', $measures);
       $this->assertArrayHasKey('security_rating', $measures);
       $this->assertArrayHasKey('vulnerabilities', $measures);
-      $this->assertArrayHasKey('sqale_index', $measures);
+      $this->assertArrayHasKey('sqale_rating', $measures);
       $this->assertArrayHasKey('security_remediation_effort', $measures);
       $this->assertArrayHasKey('coverage', $measures);
+
+      $measuresCustom = $project->getMeasures('sqale_index');
+      $this->assertArrayHasKey('sqale_index', $measuresCustom);
   }
 
   //Test sonarqube project measures history extraction with valid date parameter
@@ -109,9 +112,12 @@ class SonarqubeProjectTest extends TestCase
       $this->assertArrayHasKey('reliability_remediation_effort', $measures);
       $this->assertArrayHasKey('security_rating', $measures);
       $this->assertArrayHasKey('vulnerabilities', $measures);
-      $this->assertArrayHasKey('sqale_index', $measures);
+      $this->assertArrayHasKey('sqale_rating', $measures);
       $this->assertArrayHasKey('security_remediation_effort', $measures);
       $this->assertArrayHasKey('coverage', $measures);
+
+      $measuresCustom = $project->getMeasuresHistory('2019-01-01', 'sqale_index');
+      $this->assertArrayHasKey('sqale_index', $measuresCustom);
   }
 
     //Test sonarqube project measures history extraction with wrong date parameter

@@ -34,6 +34,7 @@ $projects = $instance->getProjects();
 ### Manage a single Sonarqube project
 The **SonarqubeProject** class allows creation of a new sonarqube project or metadata / measures extraction from an existing sonarqube project.
 
+#### Create sonarqube project
 ```
 require '../vendor/autoload.php';
 
@@ -49,10 +50,20 @@ $project = new SonarqubeProject($api, $projectKey);
 if (!$project->exists()) {
   $project->create('Test Project From Api', 'public', 'testapi');
 }
+```
 
+#### Get projet measures
+Get default list of measures. Without any parameter, the functions return mesures for the following metric keys : **alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort** . Metric keys list match the one used by Sonarqube to display the project dashboard.
+```
 $measures = $project->getMeasures();
-
 $measuresHistory = $project->getMeasuresHistory('2019-06-45');
+```
+
+To customize the measures returned by the function, add the list of desired metric keys :
+
+```
+$measures = $project->getMeasures('sqale_index');
+$measuresHistory = $project->getMeasuresHistory('2019-06-45', 'sqale_index');
 ```
 
 ### Manage users, groups, and permissions

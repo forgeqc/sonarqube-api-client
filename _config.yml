@@ -11,4 +11,3 @@ plugins:
   - jekyll-redirect-from
   - jekyll-mentions
 jekyll-mentions:
-base_url: http://www.virtualdesktopdevops.com/

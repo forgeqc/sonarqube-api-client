@@ -1,0 +1,14 @@
+title: forgeqc/sonarqube-api-client | PHP library for sonarqube and sonarcloud.io API
+description: A PHP client library for sonarqube 7.x and sonarcloud.io REST API
+google_site_verification: R71XDERzPOp9lUudi8X6iKrpcoIgDG_1HzRMz_TMaDY
+google_analytics: UA-12767493-7
+theme: jekyll-theme-slate
+show_downloads: true
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-mentions
+jekyll-mentions:
+base_url: http://www.virtualdesktopdevops.com/

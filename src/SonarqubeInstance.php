@@ -5,7 +5,8 @@ namespace ForgeQC\SonarqubeApiClient;
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
-use Exception;
+use \UnexpectedValueException;
+use \Exception;
 
 class SonarqubeInstance {
 
@@ -37,7 +38,38 @@ class SonarqubeInstance {
     } while ($projectscount > $pagesize * $pageindex);
 
     return $projects;
+  }
 
+  //Retrieve Sonarqube measures for a list of projects
+  //projectKeys is limited to 100 values
+  public function getMultipleProjectsMeasures($projectKeys, $metricKeys=null) {
+    $measures = array();
+
+    //Test $projectKeys parameter
+    $projectKeys_array = explode(',', $projectKeys);
+    if(count($projectKeys_array) > 100) {
+      throw new UnexpectedValueException('The \'projectKeys\' list is limited to 100 project');
+    }
+
+    //Extract the project quality measures from sonarqube
+    if(isset($metricKeys)) {
+      $response = $this->httpclient->request('GET', 'measures/search?metricKeys='.$metricKeys.'&projectKeys='. $projectKeys);
+    }
+    else {
+      $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort&projectKeys='. $projectKeys);
+    }
+    $sonarqubeMetrics = json_decode($response->getBody(), true);
+
+    //Parse measures and inject in result array
+    foreach ($sonarqubeMetrics['measures'] as $measure) {
+      //Generic extraction of sonarqube metrics and value for injection in the result array
+      $metric = $measure['metric'];
+      $value = $measure['value'];
+      $component = $measure['component'];
+
+      $measures[$component][$metric] = $value;
+    }
+    return $measures;
   }
 
   //Create a Sonarqube group. Should return a JSON response with group details.

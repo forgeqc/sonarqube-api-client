@@ -1,6 +1,9 @@
 # Changelog
 
 ## Version 1.1.0
+- Added capability to request metrics for multiple sonarqube projects
+
+## Version 1.1.0
  - Updated default measures list to match sonarqube / sonarcloud main dashboard metrics.
  - Added capability to request metrics for a user defined metricKeys list.
 

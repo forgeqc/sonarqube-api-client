@@ -35,6 +35,31 @@ class SonarqubeInstanceTest extends TestCase
     $this->assertArrayHasKey('name', $projects[0]);
   }
 
+  //Test getProjects() function on sonarqube online instance
+  public function testGetMultipleProjectsMeasures()
+  {
+    //Connect to sonarqube API
+    $api = new HttpClient('https://sonarcloud.io/api/');
+    $instance = new SonarqubeInstance($api);
+
+    $measures = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
+
+    $this->assertArrayHasKey('Board-Voting', $measures);
+    $this->assertArrayHasKey('paysuper_paysuper-currencies', $measures);
+    $this->assertArrayHasKey('sqale_rating', $measures['Board-Voting']);
+    $this->assertArrayHasKey('bugs', $measures['Board-Voting']);
+    $this->assertArrayHasKey('reliability_remediation_effort', $measures['Board-Voting']);
+    $this->assertArrayHasKey('security_rating', $measures['Board-Voting']);
+    $this->assertArrayHasKey('vulnerabilities', $measures['Board-Voting']);
+    $this->assertArrayHasKey('sqale_rating', $measures['Board-Voting']);
+    $this->assertArrayHasKey('security_remediation_effort', $measures['Board-Voting']);
+    $this->assertArrayHasKey('coverage', $measures['Board-Voting']);
+
+    $measuresCustom = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies','sqale_index');
+    $this->assertArrayHasKey('Board-Voting', $measuresCustom);
+    $this->assertArrayHasKey('sqale_index', $measuresCustom['Board-Voting']);
+  }
+
   //Test createGroup() function
   public function testCreateDeleteGroup()
   {

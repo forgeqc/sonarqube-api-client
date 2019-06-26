@@ -59,11 +59,25 @@ $measures = $project->getMeasures();
 $measuresHistory = $project->getMeasuresHistory('2019-06-45');
 ```
 
-To customize the measures returned by the function, add the list of desired metric keys :
+Add the list of desired metric keys to customize measures returned by the function.
 
 ```
 $measures = $project->getMeasures('sqale_index');
 $measuresHistory = $project->getMeasuresHistory('2019-06-45', 'sqale_index');
+```
+
+### Get measures of multiple sonarqube projects
+The **SonarqubeInstance::getMultipleProjectsMeasures** retrieves measures for a list of sonarqube projects. This function is useful for measures aggregation of a project portfolio.
+
+Add the list of desired metric keys to customize measures returned by the function.
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/');
+$instance = new SonarqubeInstance($api);
+
+$measures = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
+
+$measures =  $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies','sqale_index');
 ```
 
 ### Manage users, groups, and permissions

@@ -1,7 +1,8 @@
 # Changelog
 
 ## Version 1.1.0
-- Added capability to request metrics for multiple sonarqube projects
+- Added capability to request metrics for multiple sonarqube projects.
+- Added capabilities to test if a sonarqube user exists and to update user name & email.
 
 ## Version 1.1.0
  - Updated default measures list to match sonarqube / sonarcloud main dashboard metrics.

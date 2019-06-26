@@ -80,7 +80,18 @@ class SonarqubeInstanceTest extends TestCase
 
   }
 
-  //Test createGroup() function
+  //Test userExists() function
+  public function testUserExists()
+  {
+    //Connect to sonarqube API
+    $api = new HttpClient('https://next.sonarqube.com/sonarqube/api/');
+    $instance = new SonarqubeInstance($api);
+
+    $this->assertSame(true, $instance->userExists('admin'));
+    $this->assertSame(false, $instance->userExists('non-existing-user'));
+  }
+
+  //Test createUser() function
   public function testCreateDeleteUser()
   {
     //Tel PHPUNIT that the correct behavior of the tested function is to throw an exception
@@ -92,8 +103,8 @@ class SonarqubeInstanceTest extends TestCase
     $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
     $instance = new SonarqubeInstance($api, 'testapi');
 
-    $user = $instance->createUser('TestUser', 'TestUser', 'test@user.local');
-
+    $user = $instance->createUser('jdoe', 'John DOE', 'test@user.local');
+    $userUpdated = $instance->updateUser('jdoe', 'John DOE Updated', 'test-updated@user.local');
   }
 
 }

@@ -85,14 +85,20 @@ Create or deactivate a Sonarqube user :
 
 ```
 $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
-$sonarcloudOrganization = 'testapi';
-$instance = new SonarqubeInstance($api, $sonarcloudOrganization);
+$instance = new SonarqubeInstance($api);
 
-//Create user or activate existing deactivated user
-$instance->createUser('TestUser', 'TestUser', 'test@user.local');
+//Test if user exists
+if($instance->userExists('joe')) {
+  //Update user data
+  $instance->updateUser('jdoe', 'John DOE', 'john.doe@contoso.com');
+}
+else {
+  //Create user or activate existing deactivated user
+  $instance->createUser('jdoe', 'John DOE', 'john.doe@contoso.com');
+}
 
-//Deactivate users
- $instance->deactivateUser($'TestUser');
+//Deactivate user
+ $instance->deactivateUser('jdoe');
 
 ```
 

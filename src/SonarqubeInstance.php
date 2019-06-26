@@ -96,14 +96,41 @@ class SonarqubeInstance {
     }
   }
 
+  //Test if a sonarqube user exists. Boolean returned
+  public function userExists($login) {
+    $response = $this->httpclient->request('GET', 'users/search?q='.$login);
+    $data = json_decode($response->getBody(), true);
+
+    $exists = false;
+
+    foreach ($data['users'] as $key => $user) {
+      if($user['login'] == $login) {
+        $exists = true;
+        //No need to continue the foreach loop when user has been found
+        break;
+      }
+    }
+    return $exists;
+  }
+
   //Create a Sonarqube user. Should return a JSON response with user details.
   public function createUser($login, $name, $email) {
     $params['login'] = $login;
     $params['name'] = $name;
     $params['email'] = $email;
-    $params['local'] = false; //External user created without password. Local login is denied.
+    $params['local'] = 'false'; //External user created without password. Local login is denied.
 
     $response = $this->httpclient->request('POST', 'users/create', ['form_params' => $params]);
+    return json_decode($response->getBody(), true);
+  }
+
+  //Update Sonarqube user properties. Should return a JSON response with user details.
+  public function updateUser($login, $name, $email) {
+    $params['login'] = $login;
+    $params['name'] = $name;
+    $params['email'] = $email;
+
+    $response = $this->httpclient->request('POST', 'users/update', ['form_params' => $params]);
     return json_decode($response->getBody(), true);
   }
 

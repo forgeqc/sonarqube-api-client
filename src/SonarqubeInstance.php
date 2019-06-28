@@ -90,23 +90,18 @@ class SonarqubeInstance {
     //Parse measures and inject in result array
     $measures = array();
     $projects_failed_quality_gate = 0;
-    //$measures['reliability_rating'] = 1;
     foreach ($sonarqubeMetrics['measures'] as $measure) {
       $metric = $measure['metric'];
       $value = $measure['value'];
-      switch($metric) {
-        case 'alert_status':
-          if ($measure['value'] == 'ERROR') {
-            $projects_failed_quality_gate += 1;
-          }
-          break;
-        default:
-          if(array_key_exists($metric, $measures)) {
-            $measures[$metric] += intval($value);
-          }
-          else {
-            $measures[$metric] = intval($value);
-          }
+
+      if ($metric == 'alert_status' && $value == 'ERROR') {
+        $projects_failed_quality_gate += 1;
+      }
+      elseif (array_key_exists($metric, $measures)) {
+        $measures[$metric] += intval($value);
+      }
+      else {
+        $measures[$metric] = intval($value);
       }
     }
 
@@ -118,7 +113,7 @@ class SonarqubeInstance {
     Averages ending with .5 are rounded up resulting in the "lower" of the two possible ratings, so an average of 2.5
     would be rounded up to 3 and result in a "C" rating).
     */
-    foreach ($measures as $metric => $ $value) {
+    foreach ($measures as $metric => $value) {
       $measures[$metric] = round($value / $projectCount, 0, PHP_ROUND_HALF_UP);
     }
 
@@ -174,7 +169,7 @@ class SonarqubeInstance {
 
     $exists = false;
 
-    foreach ($data['users'] as $key => $user) {
+    foreach ($data['users'] as $user) {
       if($user['login'] == $login) {
         $exists = true;
         //No need to continue the foreach loop when user has been found

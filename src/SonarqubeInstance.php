@@ -72,6 +72,77 @@ class SonarqubeInstance {
     return $measures;
   }
 
+  //Aggregate Sonarqube measures for a list of projects
+  //Implements https://docs.sonarqube.org/latest/user-guide/portfolios/ sonarqube aggregation logic
+  //ProjectKeys is limited to 100 values ; Aggregation function restricted to specific metricKeys only
+  public function aggregateMultipleProjectsMeasures($projectKeys) {
+    //Test $projectKeys parameter
+    $projectKeys_array = explode(',', $projectKeys);
+    $projectCount = count($projectKeys_array);
+    if($projectCount > 100) {
+      throw new UnexpectedValueException('The \'projectKeys\' list is limited to 100 project');
+    }
+
+    //Extract the project quality measures from sonarqube
+    $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,reliability_rating,sqale_rating,security_rating&projectKeys='. $projectKeys);
+    $sonarqubeMetrics = json_decode($response->getBody(), true);
+
+    //Parse measures and inject in result array
+    $measures = array();
+    $projects_failed_quality_gate = 0;
+    //$measures['reliability_rating'] = 1;
+    foreach ($sonarqubeMetrics['measures'] as $measure) {
+      $metric = $measure['metric'];
+      $value = $measure['value'];
+      switch($metric) {
+        case 'alert_status':
+          if ($measure['value'] == 'ERROR') {
+            $projects_failed_quality_gate += 1;
+          }
+          break;
+        default:
+          if(array_key_exists($metric, $measures)) {
+            $measures[$metric] += intval($value);
+          }
+          else {
+            $measures[$metric] = intval($value);
+          }
+      }
+    }
+
+    /*
+    The Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability ratings for a Portfolio
+    are calculated as the average of the ratings for all projects included in the Portfolio.
+    SonarQube converts each project's letter rating to a number (see conversion table below),
+    calculates an average number for the projects in the portfolio, and converts that average to a letter rating.
+    Averages ending with .5 are rounded up resulting in the "lower" of the two possible ratings, so an average of 2.5
+    would be rounded up to 3 and result in a "C" rating).
+    */
+    foreach ($measures as $metric => $ $value) {
+      $measures[$metric] = round($value / $projectCount, 0, PHP_ROUND_HALF_UP);
+    }
+
+    /*The Releasability rating is the ratio of projects in the Portfolio that have a Passed Quality Gate:
+    A: > 80%, B: > 60%, C: > 40%, D: > 20%, E: <= 20% */
+    $releasability_rating = ($projectCount - $projects_failed_quality_gate) / $projectCount;
+    if ($releasability_rating > 0.8) {
+      $measures['releasability_rating'] = 1;
+    } elseif ($releasability_rating > 0.6) {
+      $measures['releasability_rating'] = 2;
+    } elseif ($releasability_rating > 0.4) {
+      $measures['releasability_rating'] = 3;
+    } elseif ($releasability_rating > 0.2) {
+      $measures['releasability_rating'] = 4;
+    } else {
+      $measures['releasability_rating'] = 5;
+    }
+
+    //Return count of projects having failed the quality gate
+    $measures['projects_failed_quality_gate'] = $projects_failed_quality_gate;
+
+    return $measures;
+  }
+
   //Create a Sonarqube group. Should return a JSON response with group details.
   public function createGroup($group) {
     $params['name'] = $group;

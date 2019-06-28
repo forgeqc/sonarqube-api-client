@@ -5,6 +5,7 @@ namespace Tests\ForgeQC\SonarqubeApiClient;
 use PHPUnit\Framework\TestCase;
 use ForgeQC\SonarqubeApiClient\HttpClient;
 use ForgeQC\SonarqubeApiClient\SonarqubeInstance;
+use ForgeQC\SonarqubeApiClient\SonarqubeProject;
 use GuzzleHttp\Exception\ClientException;
 use Dotenv\Dotenv;
 
@@ -58,6 +59,25 @@ class SonarqubeInstanceTest extends TestCase
     $measuresCustom = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies','sqale_index');
     $this->assertArrayHasKey('Board-Voting', $measuresCustom);
     $this->assertArrayHasKey('sqale_index', $measuresCustom['Board-Voting']);
+  }
+
+  function testAggregateMultipleProjectsMeasures()
+  {
+    //Connect to sonarqube API
+    $api = new HttpClient('https://sonarcloud.io/api/');
+    $instance = new SonarqubeInstance($api);
+
+    $project1 = new SonarqubeProject($api, 'Board-Voting');
+    $measures1 = $project1->getMeasures();
+
+    $project2 = new SonarqubeProject($api, 'paysuper_paysuper-currencies');
+    $measures2 = $project1->getMeasures();
+
+    $aggregatedMeasures = $instance->aggregateMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
+
+    $this->assertSame(round(($measures1['reliability_rating']+$measures2['reliability_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['reliability_rating']);
+    $this->assertSame(round(($measures1['sqale_rating']+$measures2['sqale_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['sqale_rating']);
+    $this->assertSame(round(($measures1['security_rating']+$measures2['security_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['security_rating']);
   }
 
   //Test createGroup() function

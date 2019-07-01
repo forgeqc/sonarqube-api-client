@@ -106,7 +106,7 @@ class SonarqubeInstance {
       elseif (array_key_exists($metric, $measures)) {
         $measures[$metric] += intval($value);
       }
-      else {
+      elseif ($metric != 'alert_status') {
         $measures[$metric] = intval($value);
       }
     }

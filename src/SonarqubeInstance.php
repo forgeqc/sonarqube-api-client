@@ -87,62 +87,53 @@ class SonarqubeInstance {
     $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,reliability_rating,sqale_rating,security_rating&projectKeys='. $projectKeys);
     $sonarqubeMetrics = json_decode($response->getBody(), true);
 
-    //Initialize variables
-    $sonarqubeProjectsWithMeasures = [];
-    $measures = [];
-    $projects_failed_quality_gate = 0;
-
-    foreach ($sonarqubeMetrics['measures'] as $measure) {
-      $component = $measure['component'];
-      $metric = $measure['metric'];
-      $value = $measure['value'];
-
-      //Push project id in $sonarqubeProjectsWithMeasures array to count projects with measures
-      $sonarqubeProjectsWithMeasures[$component] = 1;
-
-      if ($metric == 'alert_status' && $value == 'ERROR') {
-        $projects_failed_quality_gate += 1;
-      }
-      elseif (array_key_exists($metric, $measures)) {
-        $measures[$metric] += intval($value);
-      }
-      elseif ($metric != 'alert_status') {
-        $measures[$metric] = intval($value);
-      }
-    }
-
     //If measures are returned by sonarqube, parse project measures and inject in result array
-    if (count($measures) > 0) {
+    if (count($sonarqubeMetrics['measures']) > 0) {
+      //Initialize variables
+      $sonarqubeProjectsWithMeasures = [];
+      $measures = [];
+      $projects_failed_quality_gate = 0;
+
+      foreach ($sonarqubeMetrics['measures'] as $measure) {
+        $component = $measure['component'];
+        $metric = $measure['metric'];
+        $value = $measure['value'];
+
+        //Push project id in $sonarqubeProjectsWithMeasures array to count projects with measures
+        $sonarqubeProjectsWithMeasures[$component] = 1;
+
+        if ($metric == 'alert_status' && $value == 'ERROR') {
+          $projects_failed_quality_gate += 1;
+        }
+        elseif (array_key_exists($metric, $measures)) {
+          $measures[$metric] += intval($value);
+        }
+        elseif ($metric != 'alert_status') {
+          $measures[$metric] = intval($value);
+        }
+      }
+
+      //The number of projects with measures. can be different
       $sonarqubeProjectsWithMeasuresCount = count($sonarqubeProjectsWithMeasures);
+
       /*
       The Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability ratings for a Portfolio
       are calculated as the average of the ratings for all projects included in the Portfolio.
-      SonarQube converts each project's letter rating to a number (see conversion table below),
-      calculates an average number for the projects in the portfolio, and converts that average to a letter rating.
       Averages ending with .5 are rounded up resulting in the "lower" of the two possible ratings, so an average of 2.5
       would be rounded up to 3 and result in a "C" rating).
       */
       foreach ($measures as $metric => $value) {
-        $measures[$metric] = round($value / $projectCount, 0, PHP_ROUND_HALF_UP);
+        $measures[$metric] = round($value / $sonarqubeProjectsWithMeasuresCount, 0, PHP_ROUND_HALF_UP);
       }
 
-      /*The Releasability rating is the ratio of projects in the Portfolio that have a Passed Quality Gate:
-      A: > 80%, B: > 60%, C: > 40%, D: > 20%, E: <= 20% */
-      $releasability_rating = ($projectCount - $projects_failed_quality_gate) / $sonarqubeProjectsWithMeasuresCount;
-      if ($releasability_rating > 0.8) {
-        $measures['releasability_rating'] = 1;
-      } elseif ($releasability_rating > 0.6) {
-        $measures['releasability_rating'] = 2;
-      } elseif ($releasability_rating > 0.4) {
-        $measures['releasability_rating'] = 3;
-      } elseif ($releasability_rating > 0.2) {
-        $measures['releasability_rating'] = 4;
-      } else {
-        $measures['releasability_rating'] = 5;
-      }
+      //Insert the releasability_rating
+      $measures['releasability_rating'] = $this->getReleasabilityRating($sonarqubeProjectsWithMeasuresCount, $projects_failed_quality_gate);
 
-      //Insert the count of projects with sonarqube metics in the result array
-      $measures['projects_count'] = $sonarqubeProjectsWithMeasuresCount;
+      //Insert the count of projects wfor which sonarqube measures have been requested
+      $measures['projects_count_request'] = $projectCount;
+
+      //Insert the count of projects with sonarqube measures in the result array
+      $measures['projects_count_with_measures'] = $sonarqubeProjectsWithMeasuresCount;
 
       //Insert the count of projects having failed the quality gate in the result array
       $measures['projects_failed_quality_gate'] = $projects_failed_quality_gate;
@@ -230,6 +221,22 @@ class SonarqubeInstance {
 
   }
 
+  /*The Releasability rating is the ratio of projects in the Portfolio that have a Passed Quality Gate:
+  A: > 80%, B: > 60%, C: > 40%, D: > 20%, E: <= 20% */
+  protected function getReleasabilityRating($sonarqubeProjectsWithMeasuresCount, $projects_failed_quality_gate) {
+    $releasability_rating = ($sonarqubeProjectsWithMeasuresCount - $projects_failed_quality_gate) / $sonarqubeProjectsWithMeasuresCount;
+    if ($releasability_rating > 0.8) {
+      return 1;
+    } elseif ($releasability_rating > 0.6) {
+      return 2;
+    } elseif ($releasability_rating > 0.4) {
+      return 3;
+    } elseif ($releasability_rating > 0.2) {
+      return 4;
+    } else {
+      return 5;
+    }
+  }
 
 }
 

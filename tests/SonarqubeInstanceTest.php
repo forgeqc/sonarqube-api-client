@@ -75,7 +75,8 @@ class SonarqubeInstanceTest extends TestCase
 
     $aggregatedMeasures = $instance->aggregateMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
 
-    $this->assertSame(2, $aggregatedMeasures['projects_count']);
+    $this->assertSame(2, $aggregatedMeasures['projects_count_request']);
+    $this->assertSame(2, $aggregatedMeasures['projects_count_with_measures']);
     $this->assertSame(round(($measures1['reliability_rating']+$measures2['reliability_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['reliability_rating']);
     $this->assertSame(round(($measures1['sqale_rating']+$measures2['sqale_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['sqale_rating']);
     $this->assertSame(round(($measures1['security_rating']+$measures2['security_rating'])/2, 0, PHP_ROUND_HALF_UP),$aggregatedMeasures['security_rating']);
@@ -83,7 +84,8 @@ class SonarqubeInstanceTest extends TestCase
 
     //Test with one project non existing in Sonarqube
     $aggregatedMeasuresHalfExists = $instance->aggregateMultipleProjectsMeasures('Board-Voting,non-existing-project');
-    $this->assertSame(1, $aggregatedMeasuresHalfExists['projects_count']);
+    $this->assertSame(2, $aggregatedMeasuresHalfExists['projects_count_request']);
+    $this->assertSame(1, $aggregatedMeasuresHalfExists['projects_count_with_measures']);
     $this->assertSame(round($measures1['reliability_rating'], 0, PHP_ROUND_HALF_UP),$aggregatedMeasuresHalfExists['reliability_rating']);
     $this->assertSame(round($measures1['sqale_rating'], 0, PHP_ROUND_HALF_UP),$aggregatedMeasuresHalfExists['sqale_rating']);
     $this->assertSame(round($measures1['security_rating'], 0, PHP_ROUND_HALF_UP),$aggregatedMeasuresHalfExists['security_rating']);

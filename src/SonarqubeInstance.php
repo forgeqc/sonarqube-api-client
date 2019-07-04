@@ -90,9 +90,16 @@ class SonarqubeInstance {
     //If measures are returned by sonarqube, parse project measures and inject in result array
     if (count($sonarqubeMetrics['measures']) > 0) {
       //Initialize variables
-      $sonarqubeProjectsWithMeasures = [];
-      $measures = [];
       $projects_failed_quality_gate = 0;
+      $sonarqubeProjectsWithMeasures = [];
+      $measures = []; //Measures array
+
+      //Array containing worst rating value for security_rating and reliability_rating
+      $measuresWorst['security_rating_worst'] = 1;
+      $measuresWorst['security_rating_worst_count'] = 0;
+      $measuresWorst['reliability_rating_worst'] = 1;
+      $measuresWorst['reliability_rating_worst_count'] = 0;
+
 
       foreach ($sonarqubeMetrics['measures'] as $measure) {
         $component = $measure['component'];
@@ -102,18 +109,43 @@ class SonarqubeInstance {
         //Push project id in $sonarqubeProjectsWithMeasures array to count projects with measures
         $sonarqubeProjectsWithMeasures[$component] = 1;
 
-        if ($metric == 'alert_status' && $value == 'ERROR') {
-          $projects_failed_quality_gate += 1;
+        //Sum the measures per metric, except for alert_status
+        if ($metric == 'alert_status') {
+          if ($value == 'ERROR') {
+            $projects_failed_quality_gate += 1;
+          }
         }
         elseif (array_key_exists($metric, $measures)) {
           $measures[$metric] += intval($value);
         }
-        elseif ($metric != 'alert_status') {
+        else {
           $measures[$metric] = intval($value);
+        }
+
+        //Get worst security_rating and project count having this worst rate
+        if ($metric == 'security_rating') {
+          if(intval($value) > $measuresWorst['security_rating_worst']) {
+            $measuresWorst['security_rating_worst'] == intval($value);
+            $measuresWorst['security_rating_worst_count'] = 1;
+          }
+          elseif(intval($value) == $measuresWorst['security_rating_worst']) {
+            $measuresWorst['security_rating_worst_count'] += 1;
+          }
+        }
+
+        //Get worst reliability_rating and project count having this worst rate
+        if ($metric == 'reliability_rating') {
+          if(intval($value) > $measuresWorst['reliability_rating_worst']) {
+            $measuresWorst['reliability_rating_worst'] == intval($value);
+            $measuresWorst['reliability_rating_worst_count'] = 1;
+          }
+          elseif(intval($value) == $measuresWorst['reliability_rating_worst']) {
+            $measuresWorst['reliability_rating_worst_count'] += 1;
+          }
         }
       }
 
-      //The number of projects with measures. can be different
+      //The number of projects with measures. can be different than the number of projects in the query list
       $sonarqubeProjectsWithMeasuresCount = count($sonarqubeProjectsWithMeasures);
 
       /*
@@ -139,7 +171,7 @@ class SonarqubeInstance {
       $measures['projects_failed_quality_gate'] = $projects_failed_quality_gate;
 
       //return the result array with aggregated measures
-      return $measures;
+      return array_merge($measures, $measuresWorst);
     }
     else {
       //Return an empty array if no measures have been returned by sonarqube.

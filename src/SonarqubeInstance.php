@@ -125,7 +125,7 @@ class SonarqubeInstance {
         //Get worst security_rating and project count having this worst rate
         if ($metric == 'security_rating') {
           if(intval($value) > $measuresWorst['security_rating_worst']) {
-            $measuresWorst['security_rating_worst'] == intval($value);
+            $measuresWorst['security_rating_worst'] = intval($value);
             $measuresWorst['security_rating_worst_count'] = 1;
           }
           elseif(intval($value) == $measuresWorst['security_rating_worst']) {
@@ -136,7 +136,7 @@ class SonarqubeInstance {
         //Get worst reliability_rating and project count having this worst rate
         if ($metric == 'reliability_rating') {
           if(intval($value) > $measuresWorst['reliability_rating_worst']) {
-            $measuresWorst['reliability_rating_worst'] == intval($value);
+            $measuresWorst['reliability_rating_worst'] = intval($value);
             $measuresWorst['reliability_rating_worst_count'] = 1;
           }
           elseif(intval($value) == $measuresWorst['reliability_rating_worst']) {
@@ -258,16 +258,17 @@ class SonarqubeInstance {
   protected function getReleasabilityRating($sonarqubeProjectsWithMeasuresCount, $projects_failed_quality_gate) {
     $releasability_rating = ($sonarqubeProjectsWithMeasuresCount - $projects_failed_quality_gate) / $sonarqubeProjectsWithMeasuresCount;
     if ($releasability_rating > 0.8) {
-      return 1;
+      $rating = 1;
     } elseif ($releasability_rating > 0.6) {
-      return 2;
+      $rating = 2;
     } elseif ($releasability_rating > 0.4) {
-      return 3;
+      $rating = 3;
     } elseif ($releasability_rating > 0.2) {
-      return 4;
+      $rating = 4;
     } else {
-      return 5;
+      $rating = 5;
     }
+    return $rating;
   }
 
 }

@@ -59,11 +59,38 @@ $measures = $project->getMeasures();
 $measuresHistory = $project->getMeasuresHistory('2019-06-45');
 ```
 
-To customize the measures returned by the function, add the list of desired metric keys :
+Add the list of desired metric keys to customize measures returned by the function.
 
 ```
 $measures = $project->getMeasures('sqale_index');
 $measuresHistory = $project->getMeasuresHistory('2019-06-45', 'sqale_index');
+```
+
+### Get measures of multiple sonarqube projects
+The **SonarqubeInstance::getMultipleProjectsMeasures** function retrieves measures for a list of sonarqube projects. Maximum number of projects is 100.
+
+Add the list of desired metric keys to customize measures returned by the function.
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/');
+$instance = new SonarqubeInstance($api);
+
+$measures = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
+
+$measures =  $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies','sqale_index');
+```
+
+### Aggregate measures of multiple sonarqube projects
+The **SonarqubeInstance::aggregateMultipleProjectsMeasures** function aggregates measures for a list of sonarqube projects. This function is useful for measures aggregation of a project portfolio. Maximum number of projects is 100.
+
+Function algorithm implements Sonarqube Enterprise project portfolio measures aggregation logic described on (https://docs.sonarqube.org/latest/user-guide/portfolios/).
+
+```
+$api = new HttpClient('https://sonarcloud.io/api/');
+$instance = new SonarqubeInstance($api);
+
+$measures = $instance->aggregateMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies');
+
 ```
 
 ### Manage users, groups, and permissions
@@ -71,14 +98,20 @@ Create or deactivate a Sonarqube user :
 
 ```
 $api = new HttpClient('https://sonarcloud.io/api/', $sonar_api_key);
-$sonarcloudOrganization = 'testapi';
-$instance = new SonarqubeInstance($api, $sonarcloudOrganization);
+$instance = new SonarqubeInstance($api);
 
-//Create user or activate existing deactivated user
-$instance->createUser('TestUser', 'TestUser', 'test@user.local');
+//Test if user exists
+if($instance->userExists('joe')) {
+  //Update user data
+  $instance->updateUser('jdoe', 'John DOE', 'john.doe@contoso.com');
+}
+else {
+  //Create user or activate existing deactivated user
+  $instance->createUser('jdoe', 'John DOE', 'john.doe@contoso.com');
+}
 
-//Deactivate users
- $instance->deactivateUser($'TestUser');
+//Deactivate user
+ $instance->deactivateUser('jdoe');
 
 ```
 

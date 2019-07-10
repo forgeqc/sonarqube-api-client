@@ -43,22 +43,27 @@ class SonarqubeInstance {
   //Retrieve Sonarqube measures for a list of projects
   //projectKeys is limited to 100 values
   public function getMultipleProjectsMeasures($projectKeys, $metricKeys=null) {
+    $sonarqubeMetrics = array();
     $measures = array();
 
-    //Test $projectKeys parameter
+    //Test $projectKeys parameter and split it in multiple pages if there are more than 100 project keys
     $projectKeys_array = explode(',', $projectKeys);
     if(count($projectKeys_array) > 100) {
-      throw new UnexpectedValueException('The \'projectKeys\' list is limited to 100 project');
-    }
+      $projectKeysArrayPages = array_chunk($projectKeys_array, 100);
+      $sonarqubeMetrics['measures'] = array();
 
-    //Extract the project quality measures from sonarqube
-    if(isset($metricKeys)) {
-      $response = $this->httpclient->request('GET', 'measures/search?metricKeys='.$metricKeys.'&projectKeys='. $projectKeys);
+      foreach($projectKeysArrayPages as $keysArray) {
+        //Extract the project quality measures from sonarqube
+        $metricsPage = $this->extractMultipleProjectsMeasures(implode(',', $keysArray), $metricKeys);
+        foreach ($metricsPage['measures'] as $measure) {
+          array_push($sonarqubeMetrics['measures'], $measure);
+        }
+      }
     }
     else {
-      $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort&projectKeys='. $projectKeys);
+      //Extract the project quality measures from sonarqube
+      $sonarqubeMetrics = $this->extractMultipleProjectsMeasures($projectKeys, $metricKeys);
     }
-    $sonarqubeMetrics = json_decode($response->getBody(), true);
 
     //Parse measures and inject in result array
     foreach ($sonarqubeMetrics['measures'] as $measure) {
@@ -76,16 +81,28 @@ class SonarqubeInstance {
   //Implements https://docs.sonarqube.org/latest/user-guide/portfolios/ sonarqube aggregation logic
   //ProjectKeys is limited to 100 values ; Aggregation function restricted to specific metricKeys only
   public function aggregateMultipleProjectsMeasures($projectKeys) {
+    $sonarqubeMetrics = array();
+
     //Test $projectKeys parameter
     $projectKeys_array = explode(',', $projectKeys);
     $projectCount = count($projectKeys_array);
-    if($projectCount > 100) {
-      throw new UnexpectedValueException('The \'projectKeys\' list is limited to 100 project');
-    }
 
-    //Extract the project quality measures from sonarqube
-    $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,reliability_rating,sqale_rating,security_rating&projectKeys='. $projectKeys);
-    $sonarqubeMetrics = json_decode($response->getBody(), true);
+    if($projectCount > 100) {
+      $projectKeysArrayPages = array_chunk($projectKeys_array, 100);
+      $sonarqubeMetrics['measures'] = array();
+
+      foreach($projectKeysArrayPages as $keysArray) {
+        //Extract the project quality measures from sonarqube
+        $metricsPage = $this->extractMultipleProjectsMeasures(implode(',', $keysArray), 'alert_status,reliability_rating,sqale_rating,security_rating');
+        foreach ($metricsPage['measures'] as $measure) {
+          array_push($sonarqubeMetrics['measures'], $measure);
+        }
+      }
+    }
+    else {
+      //Extract the project quality measures from sonarqube
+      $sonarqubeMetrics = $this->extractMultipleProjectsMeasures($projectKeys, 'alert_status,reliability_rating,sqale_rating,security_rating');
+    }
 
     //If measures are returned by sonarqube, parse project measures and inject in result array
     if (count($sonarqubeMetrics['measures']) > 0) {
@@ -269,6 +286,16 @@ class SonarqubeInstance {
       $rating = 5;
     }
     return $rating;
+  }
+
+  protected function extractMultipleProjectsMeasures($projectKeys, $metricKeys=null) {
+    if(isset($metricKeys)) {
+      $response = $this->httpclient->request('GET', 'measures/search?metricKeys='.$metricKeys.'&projectKeys='. $projectKeys);
+    }
+    else {
+      $response = $this->httpclient->request('GET', 'measures/search?metricKeys=alert_status,bugs,reliability_rating,vulnerabilities,security_rating,code_smells,sqale_rating,duplicated_lines_density,coverage,ncloc,ncloc_language_distribution,reliability_remediation_effort,security_remediation_effort&projectKeys='. $projectKeys);
+    }
+    return json_decode($response->getBody(), true);
   }
 
 }

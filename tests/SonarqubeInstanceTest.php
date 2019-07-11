@@ -59,6 +59,11 @@ class SonarqubeInstanceTest extends TestCase
     $measuresCustom = $instance->getMultipleProjectsMeasures('Board-Voting,paysuper_paysuper-currencies','sqale_index');
     $this->assertArrayHasKey('Board-Voting', $measuresCustom);
     $this->assertArrayHasKey('sqale_index', $measuresCustom['Board-Voting']);
+
+    $measuresLongList = $instance->getMultipleProjectsMeasures('test1,test2,Board-Voting,paysuper_paysuper-currencies,music,indication,storage,perspective,birthday,variation,shopping,stranger,concept,skill,cigarette,unit,weakness,proposal,studio,estate,bath,shirt,debt,love,drawing,physics,topic,funeral,category,homework,engine,two,town,satisfaction,speaker,tale,mixture,version,teacher,literature,error,height,improvement,republic,army,reality,refrigerator,grandmother,construction,driver,cancer,meaning,ad,emphasis,signature,reflection,departure,cousin,meat,policy,conversation,development,manufacturer,replacement,food,cookie,recipe,chocolate,teaching,police,politics,writer,aspect,volume,role,people,security,depression,finding,childhood,newspaper,tea,soup,environment,department,examination,idea,platform,recording,protection,system,assistant,hospital,art,length,wedding,dealer,user,growth,week,recommendation,operation,preparation,quality,video,menu,mood,goal,cheek,variety,apartment,addition,winner,pizza,context,law,negotiation,marketing,poetry,guitar');
+    $this->assertArrayHasKey('Board-Voting', $measuresLongList);
+    $this->assertArrayHasKey('sqale_rating', $measuresLongList['Board-Voting']);
+
   }
 
   function testAggregateMultipleProjectsMeasures()
@@ -93,6 +98,10 @@ class SonarqubeInstanceTest extends TestCase
     //Test with no projects existing in sonarqube. Should return an empty array.
     $aggregatedMeasuresNoneExists = $instance->aggregateMultipleProjectsMeasures('non-existing-projectA,non-existing-projectB');
     $this->assertSame([], $aggregatedMeasuresNoneExists);
+
+    $aggregatedMeasuresLongList = $instance->aggregateMultipleProjectsMeasures('test1,test2,atmosphere,product,music,indication,storage,perspective,birthday,variation,shopping,stranger,concept,skill,cigarette,unit,weakness,proposal,studio,estate,bath,shirt,debt,love,drawing,physics,topic,funeral,category,homework,engine,two,town,satisfaction,speaker,tale,mixture,version,teacher,literature,error,height,improvement,republic,army,reality,refrigerator,grandmother,construction,driver,cancer,meaning,ad,emphasis,signature,reflection,departure,cousin,meat,policy,conversation,development,manufacturer,replacement,food,cookie,recipe,chocolate,teaching,police,politics,writer,aspect,volume,role,people,security,depression,finding,childhood,newspaper,tea,soup,environment,department,examination,idea,platform,recording,protection,system,assistant,hospital,art,length,wedding,dealer,user,growth,week,recommendation,operation,preparation,quality,video,menu,mood,goal,cheek,variety,apartment,addition,winner,pizza,context,law,negotiation,marketing,poetry,guitar');
+    $this->assertGreaterThan(100, $aggregatedMeasuresLongList['projects_count_request']);
+    $this->assertGreaterThan(1, $aggregatedMeasuresLongList['projects_count_with_measures']);
 
   }
 

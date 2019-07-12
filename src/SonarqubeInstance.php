@@ -13,6 +13,14 @@ class SonarqubeInstance {
   protected $httpclient;
   protected $organization;
 
+  private const SONARQUBE_MEASURES = 'measures';
+  private const SONARQUBE_LOGIN = 'login';
+  private const SONARQUBE_FORM_PARAMS = 'form_params';
+  private const MEASURES_SECURITY_RATING_WORST = 'security_rating_worst';
+  private const MEASURES_SECURITY_RATING_WORST_COUNT = 'security_rating_worst_count';
+  private const MEASURES_RELIABILITY_RATING_WORST = 'reliability_rating_worst';
+  private const MEASURES_RELIABILITY_RATING_WORST_COUNT = 'reliability_rating_worst_count';
+
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
   public function __construct($httpclient, $organization = null) {
       $this->httpclient = $httpclient;
@@ -112,10 +120,10 @@ class SonarqubeInstance {
       $measures = []; //Measures array
 
       //Array containing worst rating value for security_rating and reliability_rating
-      $measuresWorst['security_rating_worst'] = 1;
-      $measuresWorst['security_rating_worst_count'] = 0;
-      $measuresWorst['reliability_rating_worst'] = 1;
-      $measuresWorst['reliability_rating_worst_count'] = 0;
+      $measuresWorst[self::MEASURES_SECURITY_RATING_WORST] = 1;
+      $measuresWorst[self::MEASURES_SECURITY_RATING_WORST_COUNT] = 0;
+      $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST] = 1;
+      $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST_COUNT] = 0;
 
 
       foreach ($sonarqubeMetrics['measures'] as $measure) {
@@ -141,23 +149,23 @@ class SonarqubeInstance {
 
         //Get worst security_rating and project count having this worst rate
         if ($metric == 'security_rating') {
-          if(intval($value) > $measuresWorst['security_rating_worst']) {
-            $measuresWorst['security_rating_worst'] = intval($value);
-            $measuresWorst['security_rating_worst_count'] = 1;
+          if(intval($value) > $measuresWorst[self::MEASURES_SECURITY_RATING_WORST]) {
+            $measuresWorst[self::MEASURES_SECURITY_RATING_WORST] = intval($value);
+            $measuresWorst[self::MEASURES_SECURITY_RATING_WORST_COUNT] = 1;
           }
-          elseif(intval($value) == $measuresWorst['security_rating_worst']) {
-            $measuresWorst['security_rating_worst_count'] += 1;
+          elseif(intval($value) == $measuresWorst[self::MEASURES_SECURITY_RATING_WORST]) {
+            $measuresWorst[self::MEASURES_SECURITY_RATING_WORST_COUNT] += 1;
           }
         }
 
         //Get worst reliability_rating and project count having this worst rate
         if ($metric == 'reliability_rating') {
-          if(intval($value) > $measuresWorst['reliability_rating_worst']) {
-            $measuresWorst['reliability_rating_worst'] = intval($value);
-            $measuresWorst['reliability_rating_worst_count'] = 1;
+          if(intval($value) > $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST]) {
+            $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST] = intval($value);
+            $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST_COUNT] = 1;
           }
-          elseif(intval($value) == $measuresWorst['reliability_rating_worst']) {
-            $measuresWorst['reliability_rating_worst_count'] += 1;
+          elseif(intval($value) == $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST]) {
+            $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST_COUNT] += 1;
           }
         }
       }
@@ -202,7 +210,7 @@ class SonarqubeInstance {
     if(isset($this->organization)) {
       $params['organization'] = $this->organization;
     }
-    $response = $this->httpclient->request('POST', 'user_groups/create', ['form_params' => $params]);
+    $response = $this->httpclient->request('POST', 'user_groups/create', [self::SONARQUBE_FORM_PARAMS => $params]);
     return json_decode($response->getBody(), true);
   }
 
@@ -213,7 +221,7 @@ class SonarqubeInstance {
       $params['organization'] = $this->organization;
     }
     try {
-      $this->httpclient->request('POST', 'user_groups/delete', ['form_params' => $params]);
+      $this->httpclient->request('POST', 'user_groups/delete', [self::SONARQUBE_FORM_PARAMS => $params]);
       return true;
     } catch (ClientException $e) {
       return false;
@@ -228,7 +236,7 @@ class SonarqubeInstance {
     $exists = false;
 
     foreach ($data['users'] as $user) {
-      if($user['login'] == $login) {
+      if($user[self::SONARQUBE_LOGIN] == $login) {
         $exists = true;
         //No need to continue the foreach loop when user has been found
         break;
@@ -239,30 +247,30 @@ class SonarqubeInstance {
 
   //Create a Sonarqube user. Should return a JSON response with user details.
   public function createUser($login, $name, $email) {
-    $params['login'] = $login;
+    $params[self::SONARQUBE_LOGIN] = $login;
     $params['name'] = $name;
     $params['email'] = $email;
     $params['local'] = 'false'; //External user created without password. Local login is denied.
 
-    $response = $this->httpclient->request('POST', 'users/create', ['form_params' => $params]);
+    $response = $this->httpclient->request('POST', 'users/create', [self::SONARQUBE_FORM_PARAMS => $params]);
     return json_decode($response->getBody(), true);
   }
 
   //Update Sonarqube user properties. Should return a JSON response with user details.
   public function updateUser($login, $name, $email) {
-    $params['login'] = $login;
+    $params[self::SONARQUBE_LOGIN] = $login;
     $params['name'] = $name;
     $params['email'] = $email;
 
-    $response = $this->httpclient->request('POST', 'users/update', ['form_params' => $params]);
+    $response = $this->httpclient->request('POST', 'users/update', [self::SONARQUBE_FORM_PARAMS => $params]);
     return json_decode($response->getBody(), true);
   }
 
   //Deactivate a Sonarqube user. No response is returned.
   public function deactivateUser($login) {
-    $params['login'] = $login;
+    $params[self::SONARQUBE_LOGIN] = $login;
 
-    $response = $this->httpclient->request('POST', 'users/deactivate', ['form_params' => $params]);
+    $response = $this->httpclient->request('POST', 'users/deactivate', [self::SONARQUBE_FORM_PARAMS => $params]);
     $data = json_decode($response->getBody(), true);
 
     //Boolean returned by sonarqube API

@@ -16,7 +16,9 @@ class SonarqubeProject {
   protected $visibility;
   protected $owner;
 
-  private const COMPONENT = 'component';
+  private const SONARQUBE_COMPONENT = 'component';
+  private const SONARQUBE_ORGANIZATION = 'organization';
+  private const SONARQUBE_FORM_PARAMS = 'form_params';
 
   //Class constructor. Initializes object with httpclient to Sonarqube API and project key (existing or to be created)
   public function __construct($httpclient, $projectKey, $organization = null) {
@@ -33,7 +35,7 @@ class SonarqubeProject {
       $data = json_decode($response->getBody(), true);
 
       //the expression will evaluate as true if both values are equal
-      return $data[self::COMPONENT]['key'] == $this->key;
+      return $data[self::SONARQUBE_COMPONENT]['key'] == $this->key;
     } catch (BadResponseException $e) {
       //Else sonarqube returns a 404 error code
       $errorcode = json_decode($e->getResponse()->getStatusCode(), true);
@@ -52,9 +54,9 @@ class SonarqubeProject {
     $params['project'] = $this->key;
     $params['visibility'] = $visibility;
     if(isset($organization)) {
-      $params['organization'] = $organization;
+      $params[self::SONARQUBE_ORGANIZATION] = $organization;
     }
-    $response = $this->httpclient->request('POST', 'projects/create', ['form_params' => $params]);
+    $response = $this->httpclient->request('POST', 'projects/create', [self::SONARQUBE_FORM_PARAMS => $params]);
     return json_decode($response->getBody(), true);
   }
 
@@ -62,7 +64,7 @@ class SonarqubeProject {
   public function getProperties() {
     $response = $this->httpclient->request('GET', 'components/show?component='. $this->key);
     $sonarqubeComponentProperties = json_decode($response->getBody(), true);
-    return $sonarqubeComponentProperties[self::COMPONENT];
+    return $sonarqubeComponentProperties[self::SONARQUBE_COMPONENT];
   }
 
   //Retrieve Sonarqube project measures
@@ -79,7 +81,7 @@ class SonarqubeProject {
     $sonarqubeProjectsMetrics = json_decode($response->getBody(), true);
 
     //Parse measures and inject in result array
-    foreach ($sonarqubeProjectsMetrics[self::COMPONENT]['measures'] as $measure) {
+    foreach ($sonarqubeProjectsMetrics[self::SONARQUBE_COMPONENT]['measures'] as $measure) {
       //Generic extraction of sonarqube metrics and value for injection in the result array
       $metric = $measure['metric'];
       $value = $measure['value'];
@@ -122,7 +124,7 @@ class SonarqubeProject {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
       $params = $this->groupPermissionRequestArray($groupName, $permission);
-      $this->httpclient->request('POST', 'permissions/add_group', ['form_params' => $params]);
+      $this->httpclient->request('POST', 'permissions/add_group', [self::SONARQUBE_FORM_PARAMS => $params]);
       return true;
     }
   }
@@ -132,7 +134,7 @@ class SonarqubeProject {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
       $params = $this->groupPermissionRequestArray($groupName, $permission);
-      $this->httpclient->request('POST', 'permissions/remove_group', ['form_params' => $params]);
+      $this->httpclient->request('POST', 'permissions/remove_group', [self::SONARQUBE_FORM_PARAMS => $params]);
       return true;
     }
   }
@@ -142,7 +144,7 @@ class SonarqubeProject {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
       $params = $this->userPermissionRequestArray($login, $permission);
-      $this->httpclient->request('POST', 'permissions/add_user', ['form_params' => $params]);
+      $this->httpclient->request('POST', 'permissions/add_user', [self::SONARQUBE_FORM_PARAMS => $params]);
       return true;
     }
   }
@@ -152,7 +154,7 @@ class SonarqubeProject {
     //Permissions parameter validation
     if ($this->testPermissionValues($permission)) {
       $params = $this->userPermissionRequestArray($login, $permission);
-      $this->httpclient->request('POST', 'permissions/remove_user', ['form_params' => $params]);
+      $this->httpclient->request('POST', 'permissions/remove_user', [self::SONARQUBE_FORM_PARAMS => $params]);
       return true;
     }
   }
@@ -171,7 +173,7 @@ class SonarqubeProject {
     $params['projectKey'] = $this->key;
     $params['permission'] = $permission;
     if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
+      $params[self::SONARQUBE_ORGANIZATION] = $this->organization;
     }
     return $params;
   }
@@ -181,7 +183,7 @@ class SonarqubeProject {
     $params['projectKey'] = $this->key;
     $params['permission'] = $permission;
     if(isset($this->organization)) {
-      $params['organization'] = $this->organization;
+      $params[self::SONARQUBE_ORGANIZATION] = $this->organization;
     }
     return $params;
   }

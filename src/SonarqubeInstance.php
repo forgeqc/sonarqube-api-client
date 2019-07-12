@@ -58,13 +58,13 @@ class SonarqubeInstance {
     $projectKeys_array = explode(',', $projectKeys);
     if(count($projectKeys_array) > 100) {
       $projectKeysArrayPages = array_chunk($projectKeys_array, 100);
-      $sonarqubeMetrics['measures'] = array();
+      $sonarqubeMetrics[self::SONARQUBE_MEASURES] = array();
 
       foreach($projectKeysArrayPages as $keysArray) {
         //Extract the project quality measures from sonarqube
         $metricsPage = $this->extractMultipleProjectsMeasures(implode(',', $keysArray), $metricKeys);
-        foreach ($metricsPage['measures'] as $measure) {
-          array_push($sonarqubeMetrics['measures'], $measure);
+        foreach ($metricsPage[self::SONARQUBE_MEASURES] as $measure) {
+          array_push($sonarqubeMetrics[self::SONARQUBE_MEASURES], $measure);
         }
       }
     }
@@ -74,7 +74,7 @@ class SonarqubeInstance {
     }
 
     //Parse measures and inject in result array
-    foreach ($sonarqubeMetrics['measures'] as $measure) {
+    foreach ($sonarqubeMetrics[self::SONARQUBE_MEASURES] as $measure) {
       //Generic extraction of sonarqube metrics and value for injection in the result array
       $metric = $measure['metric'];
       $value = $measure['value'];
@@ -97,13 +97,13 @@ class SonarqubeInstance {
 
     if($projectCount > 100) {
       $projectKeysArrayPages = array_chunk($projectKeys_array, 100);
-      $sonarqubeMetrics['measures'] = array();
+      $sonarqubeMetrics[self::SONARQUBE_MEASURES] = array();
 
       foreach($projectKeysArrayPages as $keysArray) {
         //Extract the project quality measures from sonarqube
         $metricsPage = $this->extractMultipleProjectsMeasures(implode(',', $keysArray), 'alert_status,reliability_rating,sqale_rating,security_rating');
-        foreach ($metricsPage['measures'] as $measure) {
-          array_push($sonarqubeMetrics['measures'], $measure);
+        foreach ($metricsPage[self::SONARQUBE_MEASURES] as $measure) {
+          array_push($sonarqubeMetrics[self::SONARQUBE_MEASURES], $measure);
         }
       }
     }
@@ -113,7 +113,7 @@ class SonarqubeInstance {
     }
 
     //If measures are returned by sonarqube, parse project measures and inject in result array
-    if (count($sonarqubeMetrics['measures']) > 0) {
+    if (count($sonarqubeMetrics[self::SONARQUBE_MEASURES]) > 0) {
       //Initialize variables
       $projects_failed_quality_gate = 0;
       $sonarqubeProjectsWithMeasures = [];
@@ -126,7 +126,7 @@ class SonarqubeInstance {
       $measuresWorst[self::MEASURES_RELIABILITY_RATING_WORST_COUNT] = 0;
 
 
-      foreach ($sonarqubeMetrics['measures'] as $measure) {
+      foreach ($sonarqubeMetrics[self::SONARQUBE_MEASURES] as $measure) {
         $component = $measure['component'];
         $metric = $measure['metric'];
         $value = $measure['value'];
